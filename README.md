@@ -95,3 +95,8 @@ Unit tests go in the _./test_-folder. The file name for a unit test must be equa
 the suffix "_.test_", e.g. _Functions.js_ will have a test file _Functions.test.js_.
 
 NOTE : Node v 4.0 or higher must be installed for running the tests (these depend on jsdom)
+
+ROADMAP
+-------
+
+Slocum Trackers core should merge with [Efflux Tracker](https://github.com/igorski/efflux-tracker). This will enable the synthesis of actual sound (though it should not attempt to mimic the TIA!!), optimized interface and support for Web MIDI.
