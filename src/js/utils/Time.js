@@ -22,6 +22,8 @@
  */
 "use strict";
 
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
 module.exports =
 {
     /**
@@ -33,20 +35,18 @@ module.exports =
      */
     timestampToDate( aTimestamp )
     {
-        let a      = new Date( aTimestamp );
-        let months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-        let year   = a.getFullYear();
-        let month  = months[a.getMonth()];
-        let date   = a.getDate();
-        let hour   = a.getHours();
-        let min    = a.getMinutes();
-        let sec    = a.getSeconds();
+        const a      = new Date( aTimestamp );
+        const year   = a.getFullYear();
+        const month  = MONTHS[ a.getMonth() ];
+        const date   = a.getDate();
+        const hour   = a.getHours();
+        const min    = a.getMinutes();
+        const sec    = a.getSeconds();
 
         return date + ' ' + month + ' ' + year + ' ' + prependZero( hour ) + ':' + prependZero( min ) + ':' + prependZero( sec );
     }
 };
 
-function prependZero( value )
-{
+function prependZero( value ) {
     return ( value < 10 ) ? "0" + value : value;
 }

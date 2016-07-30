@@ -2,5 +2,8 @@
     <li id="songLoad">Load song</li>
     <li id="songSave">Save song</li>
     <li id="songReset">Reset</li>
-    <li id="songExport">Export song</li>
+    {{#if canImportExport}}
+        <li id="songImport">Import song</li>
+        <li id="songExport">Export song</li>
+    {{/if}}
 </ul>

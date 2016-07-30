@@ -1,23 +1,26 @@
 /**
  * Created by igorzinken on 26-07-15.
  */
-var chai             = require( "chai" );
-var MockBrowser      = require( "mock-browser" ).mocks.MockBrowser;
-var AssemblerFactory = require( "../../src/js/factory/AssemblerFactory" );
-var SongModel        = require( "../../src/js/model/SongModel" );
-var TIA              = require( "../../src/js/definitions/TIA" );
-var Time             = require( "../../src/js/utils/Time" );
-var ObjectUtil       = require( "../../src/js/utils/ObjectUtil" );
+"use strict";
+
+const chai                = require( "chai" );
+const MockBrowser         = require( "mock-browser" ).mocks.MockBrowser;
+const SongAssemblyService = require( "../../src/js/services/SongAssemblyService" );
+const SongModel           = require( "../../src/js/model/SongModel" );
+const TIA                 = require( "../../src/js/definitions/TIA" );
+const Time                = require( "../../src/js/utils/Time" );
+const ObjectUtil          = require( "../../src/js/utils/ObjectUtil" );
+const TextFileUtil        = require( "../../src/js/utils/TextFileUtil" );
 
 describe( "AssemblerFactory", () =>
 {
     /* setup */
 
     // use Chai assertion library
-    var assert = chai.assert,
+    let assert = chai.assert,
         expect = chai.expect;
 
-    var song, model, browser;
+    let song, model, browser;
 
     // executed before the tests start running
 
@@ -57,7 +60,7 @@ describe( "AssemblerFactory", () =>
         song.meta.title  = "foo";
         song.meta.author = "bar";
 
-        var asm = textToLineArray( AssemblerFactory.assemble( song ));
+        let asm = TextFileUtil.textToLineArray( SongAssemblyService.assemble( song ));
 
         assert.ok( asm[ 1 ].indexOf( song.meta.title ) > -1,
             "expected assembly output to contain song title" );
@@ -73,7 +76,7 @@ describe( "AssemblerFactory", () =>
     {
         song.meta.tempo = rand( 1, 10 );
 
-        var asm = textToLineArray( AssemblerFactory.assemble( song ));
+        let asm = TextFileUtil.textToLineArray( SongAssemblyService.assemble( song ));
 
         assert.ok( asm[ 11 ].indexOf( "TEMPODELAY equ " + song.meta.tempo ) > -1,
             "expected assembly output to contain correct tempo value" );
@@ -81,16 +84,16 @@ describe( "AssemblerFactory", () =>
 
     it( "should translate the hat pattern correctly into the assembly output", () =>
     {
-        var pattern = song.hats.pattern;
+        let pattern = song.hats.pattern;
 
-        for ( var i = 0; i < pattern.length; ++i )
+        for ( let i = 0; i < pattern.length; ++i )
             pattern[ i ] = ( randBool() ) ? 1 : 0;
 
-        var asm = textToLineArray( AssemblerFactory.assemble( song ));
-        var lineStart = getLineNumForText( asm, "hatPattern" ) + 1;
-        var lineEnd   = lineStart + 4; // 4 lines in total (32 steps divided by 8)
-        var pIndex    = 0;
-        var lookup;
+        let asm = TextFileUtil.textToLineArray( SongAssemblyService.assemble( song ));
+        let lineStart = TextFileUtil.getLineNumForText( asm, "hatPattern" ) + 1;
+        let lineEnd   = lineStart + 4; // 4 lines in total (32 steps divided by 8)
+        let pIndex    = 0;
+        let lookup;
 
         for ( lineStart; lineStart < lineEnd; ++lineStart, ++pIndex )
         {
@@ -102,33 +105,33 @@ describe( "AssemblerFactory", () =>
 
     it( "should translate the hat pattern properties correctly into the assembly output", () =>
     {
-        var hats = song.hats;
+        let hats = song.hats;
 
         hats.start  = rand( 0, 255 );
         hats.pitch  = rand( 0, 31 );
         hats.volume = rand( 0, 15 );
         hats.sound  = rand( 1, 15 );
 
-        var asm = textToLineArray( AssemblerFactory.assemble( song ));
+        let asm = TextFileUtil.textToLineArray( SongAssemblyService.assemble( song ));
 
-        assert.ok( asm[ getLineNumForText( asm, "HATSTART equ" )].indexOf( hats.start ) > -1,
+        assert.ok( asm[ TextFileUtil.getLineNumForText( asm, "HATSTART equ" )].indexOf( hats.start ) > -1,
             "expected hat start offset to have been translated correctly" );
 
-        assert.ok( asm[ getLineNumForText( asm, "HATVOLUME equ" )].indexOf( hats.volume ) > -1,
+        assert.ok( asm[ TextFileUtil.getLineNumForText( asm, "HATVOLUME equ" )].indexOf( hats.volume ) > -1,
             "expected hat volume to have been translated correctly" );
 
-        assert.ok( asm[ getLineNumForText( asm, "HATPITCH equ" )].indexOf( hats.pitch ) > -1,
+        assert.ok( asm[ TextFileUtil.getLineNumForText( asm, "HATPITCH equ" )].indexOf( hats.pitch ) > -1,
             "expected hat pitch to have been translated correctly" );
 
-        assert.ok( asm[ getLineNumForText( asm, "HATSOUND equ" )].indexOf( hats.sound ) > -1,
+        assert.ok( asm[ TextFileUtil.getLineNumForText( asm, "HATSOUND equ" )].indexOf( hats.sound ) > -1,
             "expected hat sound to have been translated correctly" );
     });
 
     it( "should declare silent patterns only once to save space", () =>
     {
-        var channel1 = song.patterns[ 0 ].channels[ 0 ];
-        var bank     = TIA.table.tunings[ 0 ].BASS;
-        var i, l, def;
+        let channel1 = song.patterns[ 0 ].channels[ 0 ];
+        let bank     = TIA.table.tunings[ 0 ].BASS;
+        let i, l, def;
 
         // add some random notes for the first quaver of the first channels bar
 
@@ -143,8 +146,8 @@ describe( "AssemblerFactory", () =>
             };
         }
 
-        var asm = textToLineArray( AssemblerFactory.assemble( song ));
-        var patternDef = getLineNumForText( asm, "Higher volume patterns" ) + 3;
+        let asm = TextFileUtil.textToLineArray( SongAssemblyService.assemble( song ));
+        let patternDef = TextFileUtil.getLineNumForText( asm, "Higher volume patterns" ) + 3;
 
         assert.ok( asm[ patternDef ].indexOf( "word Pattern1, Pattern2, Pattern2, Pattern2" ) > -1,
             "expected one unique and three re-used patterns for channel 1" );
@@ -155,10 +158,10 @@ describe( "AssemblerFactory", () =>
 
     it( "should write patterns into the appropriate volume arrays", () =>
     {
-        var channel1 = song.patterns[ 0 ].channels[ 0 ];
-        var channel2 = song.patterns[ 0 ].channels[ 1 ];
-        var bank     = TIA.table.tunings[ 0 ].BASS;
-        var i, j, l, def, out;
+        let channel1 = song.patterns[ 0 ].channels[ 0 ];
+        let channel2 = song.patterns[ 0 ].channels[ 1 ];
+        let bank     = TIA.table.tunings[ 0 ].BASS;
+        let i, j, l, def, out;
 
         song.patterns[ 0 ].channel2attenuation = true; // attenuate channel 2
 
@@ -185,14 +188,14 @@ describe( "AssemblerFactory", () =>
 
         // assert results
 
-        var asm = textToLineArray( AssemblerFactory.assemble( song ));
-        var patternDef = getLineNumForText( asm, "Higher volume patterns" ) + 3;
+        let asm = TextFileUtil.textToLineArray( SongAssemblyService.assemble( song ));
+        let patternDef = TextFileUtil.getLineNumForText( asm, "Higher volume patterns" ) + 3;
 
         assert.ok( asm[ patternDef ].indexOf( "word Pattern1, Pattern2, Pattern2, Pattern2 ; 0" ) > -1,
             "expected channel 1 pattern to be in the higher volume Array starting at index 0" );
 
-        asm = textToLineArray( AssemblerFactory.assemble( song ));
-        patternDef = getLineNumForText( asm, "Lower volume patterns" ) + 3;
+        asm = TextFileUtil.textToLineArray( SongAssemblyService.assemble( song ));
+        patternDef = TextFileUtil.getLineNumForText( asm, "Lower volume patterns" ) + 3;
 
         assert.ok( asm[ patternDef ].indexOf( "word Pattern3, Pattern2, Pattern2, Pattern2 ; 128" ) > -1,
             "expected channel 2 pattern to be in the lower volume Array starting at index 128" );
@@ -200,10 +203,10 @@ describe( "AssemblerFactory", () =>
 
     it( "should define duplicate subpatterns only once to save space", () =>
     {
-        var channel1 = song.patterns[ 0 ].channels[ 0 ];
-        var channel2 = song.patterns[ 0 ].channels[ 1 ];
-        var bank     = TIA.table.tunings[ 0 ].BASS;
-        var i, j, l, def;
+        let channel1 = song.patterns[ 0 ].channels[ 0 ];
+        let channel2 = song.patterns[ 0 ].channels[ 1 ];
+        let bank     = TIA.table.tunings[ 0 ].BASS;
+        let i, j, l, def;
 
         // add some random notes for the first quaver of the first channels bar
 
@@ -223,8 +226,8 @@ describe( "AssemblerFactory", () =>
         for ( i = 0, j = 4; i < 4; ++i, ++j )
             channel2[ j ] = ObjectUtil.clone( channel1[ i ]);
 
-        var asm = textToLineArray( AssemblerFactory.assemble( song ));
-        var patternDef = getLineNumForText( asm, "Higher volume patterns" ) + 3;
+        let asm = TextFileUtil.textToLineArray( SongAssemblyService.assemble( song ));
+        let patternDef = TextFileUtil.getLineNumForText( asm, "Higher volume patterns" ) + 3;
 
         assert.ok( asm[ patternDef ].indexOf( "word Pattern1, Pattern2, Pattern2, Pattern2" ) > -1,
             "expected one unique and three re-used patterns for channel 1" );
@@ -244,8 +247,8 @@ describe( "AssemblerFactory", () =>
                 accent: randBool()
             };
         }
-        asm = textToLineArray( AssemblerFactory.assemble( song ));
-        patternDef = getLineNumForText( asm, "Higher volume patterns" ) + 3;
+        asm = TextFileUtil.textToLineArray( SongAssemblyService.assemble( song ));
+        patternDef = TextFileUtil.getLineNumForText( asm, "Higher volume patterns" ) + 3;
 
         assert.ok( asm[ patternDef ].indexOf( "word Pattern1, Pattern2, Pattern2, Pattern2" ) > -1,
             "expected one unique and three re-used patterns for channel 1" );
@@ -256,11 +259,11 @@ describe( "AssemblerFactory", () =>
 
     it( "should duplicate pattern words only once to save space", () =>
     {
-        var channel1 = song.patterns[ 0 ].channels[ 0 ];
-        var channel2 = song.patterns[ 0 ].channels[ 1 ];
-        var steps    = song.patterns[ 0 ].steps;
-        var bank     = TIA.table.tunings[ 0 ].BASS;
-        var i, j, l, def;
+        let channel1 = song.patterns[ 0 ].channels[ 0 ];
+        let channel2 = song.patterns[ 0 ].channels[ 1 ];
+        let steps    = song.patterns[ 0 ].steps;
+        let bank     = TIA.table.tunings[ 0 ].BASS;
+        let i, j, l, def;
 
         // add some random notes for the first measure of the first channels bar
 
@@ -280,8 +283,8 @@ describe( "AssemblerFactory", () =>
         for ( i = 0; i < steps; ++i )
             channel2[ i ] = ObjectUtil.clone( channel1[ i ]);
 
-        var asm        = textToLineArray( AssemblerFactory.assemble( song ));
-        var patternDef = getLineNumForText( asm, "Higher volume patterns" ) + 3;
+        let asm        = TextFileUtil.textToLineArray( SongAssemblyService.assemble( song ));
+        let patternDef = TextFileUtil.getLineNumForText( asm, "Higher volume patterns" ) + 3;
 
         assert.ok( asm[ patternDef ].indexOf( "word Pattern1, Pattern2, Pattern3, Pattern4" ) > -1,
              "expected pattern declaration to match expectation" );
@@ -289,12 +292,12 @@ describe( "AssemblerFactory", () =>
         assert.ok( asm[ patternDef + 1 ].length === 0,
              "expected only one pattern to have been declared as duplicates should be omitted" );
 
-        var songDef = getLineNumForText( asm, "song1" ) + 1;
+        let songDef = TextFileUtil.getLineNumForText( asm, "song1" ) + 1;
 
         assert.ok( asm[ songDef ].indexOf( "byte 0" ) > -1,
             "expected byte 0 to have been declared for song 1" );
 
-        songDef = getLineNumForText( asm, "song2" ) + 1;
+        songDef = TextFileUtil.getLineNumForText( asm, "song2" ) + 1;
 
         assert.ok( asm[ songDef ].indexOf( "byte 0" ) > -1,
             "expected byte 0 to have been redeclared for song 2" );
@@ -302,11 +305,11 @@ describe( "AssemblerFactory", () =>
 
     it( "should duplicate pattern words when it doesn't exist for the specified volume pattern", () =>
     {
-        var channel1 = song.patterns[ 0 ].channels[ 0 ];
-        var channel2 = song.patterns[ 0 ].channels[ 1 ];
-        var steps    = song.patterns[ 0 ].steps;
-        var bank     = TIA.table.tunings[ 0 ].BASS;
-        var i, j, l, def;
+        let channel1 = song.patterns[ 0 ].channels[ 0 ];
+        let channel2 = song.patterns[ 0 ].channels[ 1 ];
+        let steps    = song.patterns[ 0 ].steps;
+        let bank     = TIA.table.tunings[ 0 ].BASS;
+        let i, j, l, def;
 
         // add some random notes for the first measure of the first channels bar
 
@@ -330,23 +333,23 @@ describe( "AssemblerFactory", () =>
 
         song.patterns[ 0 ].channel2attenuation = true;
 
-        var asm        = textToLineArray( AssemblerFactory.assemble( song ));
-        var patternDef = getLineNumForText( asm, "Higher volume patterns" ) + 3;
+        let asm        = TextFileUtil.textToLineArray( SongAssemblyService.assemble( song ));
+        let patternDef = TextFileUtil.getLineNumForText( asm, "Higher volume patterns" ) + 3;
 
         assert.ok( asm[ patternDef ].indexOf( "word Pattern1, Pattern2, Pattern3, Pattern4" ) > -1,
              "expected pattern declaration to match expectation" );
 
-        patternDef = getLineNumForText( asm, "Lower volume patterns" ) + 3;
+        patternDef = TextFileUtil.getLineNumForText( asm, "Lower volume patterns" ) + 3;
 
         assert.ok( asm[ patternDef ].indexOf( "word Pattern1, Pattern2, Pattern3, Pattern4" ) > -1,
              "expected pattern to have been redeclared as it didn't exist in the lower volume Array yet" );
 
-        var songDef = getLineNumForText( asm, "song1" ) + 1;
+        let songDef = TextFileUtil.getLineNumForText( asm, "song1" ) + 1;
 
         assert.ok( asm[ songDef ].indexOf( "byte 0" ) > -1,
             "expected byte 0 to have been declared for song 1" );
 
-        songDef = getLineNumForText( asm, "song2" ) + 1;
+        songDef = TextFileUtil.getLineNumForText( asm, "song2" ) + 1;
 
         assert.ok( asm[ songDef ].indexOf( "byte 128" ) > -1,
             "expected byte 128 to have been declared for song 2" );
@@ -354,10 +357,10 @@ describe( "AssemblerFactory", () =>
 
     it( "should redeclare a pattern that is a duplicate by notes, but not by accents", () =>
     {
-        var channel1 = song.patterns[ 0 ].channels[ 0 ];
-        var channel2 = song.patterns[ 0 ].channels[ 1 ];
-        var bank     = TIA.table.tunings[ 0 ].BASS;
-        var i, j, l, def;
+        let channel1 = song.patterns[ 0 ].channels[ 0 ];
+        let channel2 = song.patterns[ 0 ].channels[ 1 ];
+        let bank     = TIA.table.tunings[ 0 ].BASS;
+        let i, j, l, def;
 
         // add some random notes for the first quaver of the first channels bar
 
@@ -379,8 +382,8 @@ describe( "AssemblerFactory", () =>
             channel2[ j ].accent = !channel1[ i ].accent; // flip the accent
         }
 
-        var asm = textToLineArray( AssemblerFactory.assemble( song ));
-        var patternDef = getLineNumForText( asm, "Higher volume patterns" ) + 3;
+        let asm = TextFileUtil.textToLineArray( SongAssemblyService.assemble( song ));
+        let patternDef = TextFileUtil.getLineNumForText( asm, "Higher volume patterns" ) + 3;
 
         assert.ok( asm[ patternDef ].indexOf( "word Pattern1, Pattern2, Pattern2, Pattern2" ) > -1,
             "expected one unique and three re-used patterns for channel 1" );
@@ -392,27 +395,10 @@ describe( "AssemblerFactory", () =>
 
 /* helper functions */
 
-function randBool()
-{
+function randBool() {
     return Math.random() > .5;
 }
 
-function rand( min, max )
-{
+function rand( min, max ) {
     return Math.round( Math.random() * max ) + min;
-}
-
-function textToLineArray( text )
-{
-    return text.replace( /\r\n|\n\r|\n|\r/g,"\n" ).split( "\n" );
-}
-
-function getLineNumForText( textArray, textToFind )
-{
-    for ( var i = 0, l = textArray.length; i < l; ++i )
-    {
-        if ( textArray[ i ].indexOf( textToFind ) > -1 )
-            return i;
-    }
-    return -1;
 }

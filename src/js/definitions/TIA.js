@@ -286,7 +286,7 @@ const TIA = module.exports =
      */
     getCode( tuning, sound, note, octave )
     {
-        let soundDescription = tuning[ sound ];
+        const soundDescription = tuning[ sound ];
 
         if ( soundDescription )
         {
@@ -311,7 +311,7 @@ const TIA = module.exports =
      */
     getPercussionCode( sound )
     {
-        let soundDescription = TIA.table.PERCUSSION;
+        const soundDescription = TIA.table.PERCUSSION;
         let i = soundDescription.length, noteDescription;
 
         while ( i-- )
@@ -321,5 +321,66 @@ const TIA = module.exports =
                 return noteDescription.code;
         }
         return null;
+    },
+
+    /**
+     * retrieve a sound description by TIA code
+     *
+     * @public
+     * @param {string} code
+     * @return {PATTERN_STEP}
+     */
+    getSoundByCode( code )
+    {
+        let description;
+
+        // first check whether we're dealing with percussion
+
+        description = iterateSoundList( TIA.table.PERCUSSION, code );
+        if ( description ) {
+            return {
+                sound: description.note,
+                accent: false
+            };
+        }
+
+        // go through the tunings
+
+        const tunings = TIA.table.tunings;
+        let i = tunings.length, tuning;
+
+        while ( i-- ) {
+
+            tuning = tunings[ i ];
+            const tuningNotes = Object.keys( tuning );
+            let l = tuningNotes.length;
+            let sound;
+
+            while ( l-- ) {
+
+                sound = tuning[ tuningNotes[ l ]];
+                description = iterateSoundList( sound, code );
+
+                if ( description ){
+                    return {
+                        sound: tuningNotes[ l ],
+                        note: description.note,
+                        octave: description.octave,
+                        accent: false
+                    }
+                }
+            }
+        }
     }
 };
+
+function iterateSoundList( list, code ) {
+
+    let i = list.length, entry;
+    while ( i-- ) {
+        entry = list[ i ];
+        if ( entry.code === code )
+            return entry;
+    }
+    return null;
+}

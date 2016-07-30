@@ -36,8 +36,8 @@ module.exports =
      */
     createPattern()
     {
-        let steps = 16;
-        let out   = [];
+        const steps = 16;
+        const out   = [];
 
         for ( let i = 0; i < steps; ++i )
         {
@@ -45,7 +45,6 @@ module.exports =
                // sound
             });
         }
-
         return out;
     }
 };

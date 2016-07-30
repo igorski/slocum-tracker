@@ -1,24 +1,30 @@
 /**
  * Created by igorzinken on 26-07-15.
  */
-var chai           = require( "chai" );
-var SelectionModel = require( "../../src/js/model/SelectionModel" );
-var SongModel      = require( "../../src/js/model/SongModel" );
+"use strict";
+
+const chai           = require( "chai" );
+const MockBrowser    = require( "mock-browser" ).mocks.MockBrowser;
+const SelectionModel = require( "../../src/js/model/SelectionModel" );
+const SongModel      = require( "../../src/js/model/SongModel" );
 
 describe( "SelectionModel", () =>
 {
     /* setup */
 
     // use Chai assertion library
-    var assert = chai.assert,
-        expect = chai.expect;
+    const assert = chai.assert,
+          expect = chai.expect;
 
-    var model;
+    let model, browser;
 
     // executed before the tests start running
 
     before( () =>
     {
+        browser       = new MockBrowser();
+        global.window = browser.getWindow();
+
         model = new SelectionModel( new SongModel() );
     });
 
@@ -47,10 +53,10 @@ describe( "SelectionModel", () =>
 
     it( "should add indices to its current selection", () =>
     {
-        var activeChannel = 0, max = 16;
+        let activeChannel = 0, max = 16;
         model.setSelection( activeChannel, 0, max );
 
-        for ( var i = 0; i < max; ++i )
+        for ( let i = 0; i < max; ++i )
         {
             assert.ok( model.selection[ activeChannel ].indexOf( i ) > -1,
                 "expected SelectionModel to have added index '" + i + "' to the current selection" );
@@ -59,7 +65,7 @@ describe( "SelectionModel", () =>
 
     it( "should add not add the same index twice to its current selection", () =>
     {
-        var activeChannel = 0, max = 1;
+        let activeChannel = 0, max = 1;
 
         assert.strictEqual( 0, model.selection[ activeChannel ].length,
             "expected selection to have 0 length prior to addition" );
@@ -94,9 +100,9 @@ describe( "SelectionModel", () =>
 
     it( "should equalize the selection for both channels when forced", () =>
     {
-        var activeChannel = 0;
-        var otherChannel  = 1;
-        var max           = 4;
+        let activeChannel = 0;
+        let otherChannel  = 1;
+        let max           = 4;
 
         model.setSelection( activeChannel, 0, max );
 
@@ -109,8 +115,8 @@ describe( "SelectionModel", () =>
 
     it( "should equalize the selection for both channels if both channels had content", () =>
     {
-        var activeChannel = 0;
-        var otherChannel  = 1;
+        let activeChannel = 0;
+        let otherChannel  = 1;
 
         model.setSelection( activeChannel, 0, 4 );
         model.setSelection( otherChannel,  0, 8 );
@@ -122,15 +128,15 @@ describe( "SelectionModel", () =>
 
     it( "should know the minimum, maximum values of its selection", () =>
     {
-        var min = 0;
-        var max = 16;
+        let min = 0;
+        let max = 16;
 
         model.setSelection( 1, min, max );
 
         assert.strictEqual( 0, model.getMinValue(),
             "expected model to return '" + 0 + "' for its minimum selection value" );
 
-        var expected = max - 1;
+        let expected = max - 1;
 
         assert.strictEqual( expected, model.getMaxValue(),
             "expected model to return '" + expected + "' for its maximum selection value" );
@@ -138,12 +144,12 @@ describe( "SelectionModel", () =>
 
     it( "should know the full length of its selection", () =>
     {
-        var min = 0;
-        var max = 16;
+        let min = 0;
+        let max = 16;
 
         model.setSelection( 0, min, max );
 
-        var expected = max - min;
+        let expected = max - min;
 
         assert.strictEqual( expected, model.getSelectionLength(),
             "expected model to return '" + expected + "' for its selection length" );
