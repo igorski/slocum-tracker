@@ -23,9 +23,11 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+"use strict";
+
 module.exports =
 {
-    isPercussive : function( sound )
+    isPercussive( sound )
     {
         return ( [ "KICK", "HAT", "SNARE", "SNARE2" ].indexOf( sound ) > - 1 );
     }

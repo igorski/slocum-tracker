@@ -20,8 +20,10 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var PatternFactory = require( "../factory/PatternFactory" );
-var NoteUtil       = require( "./NoteUtil" );
+"use strict";
+
+const PatternFactory = require( "../factory/PatternFactory" );
+const NoteUtil       = require( "./NoteUtil" );
 
 module.exports =
 {
@@ -32,9 +34,9 @@ module.exports =
      * @param {Object} song
      * @return {boolean}
      */
-    hasContent : function( song )
+    hasContent( song )
     {
-        var hasContent = false;
+        let hasContent = false;
 
         song.patterns.forEach( function( songPattern )
         {
@@ -57,9 +59,9 @@ module.exports =
      * @param {Object} song
      * @param {Object} tuning TIA tuning
      */
-    sanitizeForTuning : function( song, tuning )
+    sanitizeForTuning( song, tuning )
     {
-        var i, j, p, ps, t, found, remove;
+        let i, j, p, ps, t, found, remove;
 
         song.patterns.forEach( function( songPattern )
         {

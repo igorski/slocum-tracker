@@ -5,7 +5,7 @@ var chai        = require( "chai" );
 var MockBrowser = require( "mock-browser" ).mocks.MockBrowser;
 var Select      = require( "../../src/js/ui/Select" );
 
-describe( "Select", function()
+describe( "Select", () =>
 {
     /* setup */
 
@@ -17,7 +17,7 @@ describe( "Select", function()
 
     // executed before the tests start running
 
-    before( function()
+    before( () =>
     {
         browser         = new MockBrowser();
         global.document = browser.getDocument();
@@ -34,28 +34,28 @@ describe( "Select", function()
 
     // executed when all tests have finished running
 
-    after( function()
+    after( () =>
     {
 
     });
 
     // executed before each individual test
 
-    beforeEach( function()
+    beforeEach( () =>
     {
 
     });
 
     // executed after each individual test
 
-    afterEach( function()
+    afterEach( () =>
     {
 
     });
 
     /* actual unit tests */
 
-    it( "should construct without supplying options", function()
+    it( "should construct without supplying options", () =>
     {
         var select = new Select( element );
 
@@ -63,7 +63,7 @@ describe( "Select", function()
             "expected Select not to have options if none were passed during construction" );
     });
 
-    it( "should construct without supplying options", function()
+    it( "should construct without supplying options", () =>
     {
         var select = new Select( element, null, options );
 
@@ -71,7 +71,7 @@ describe( "Select", function()
             "expected Select to have options as these were supplied during construction" );
     });
 
-    it( "should be able to update its options after construction", function()
+    it( "should be able to update its options after construction", () =>
     {
         var select = new Select( element );
 
@@ -81,7 +81,7 @@ describe( "Select", function()
             "expected Select to have options as these were supplied during construction" );
     });
 
-    it( "should by default select the first available option after setting options", function()
+    it( "should by default select the first available option after setting options", () =>
     {
         var select = new Select( element );
 
@@ -91,7 +91,7 @@ describe( "Select", function()
             "expected Select to have set its value to the first available option" );
     });
 
-    it( "should be able to update its selected value", function()
+    it( "should be able to update its selected value", () =>
     {
         var select = new Select( element );
 
@@ -108,7 +108,7 @@ describe( "Select", function()
             "not available value" );
     });
 
-    it( "should be able to update its selected value by the first character of the value", function()
+    it( "should be able to update its selected value by the first character of the value", () =>
     {
         var select = new Select( element, null, options );
 
@@ -143,7 +143,7 @@ describe( "Select", function()
         select.setValue( options[1].value );
     });
 
-    it( "should be able to collect values if it is constructed for an existing HTML template", function()
+    it( "should be able to collect values if it is constructed for an existing HTML template", () =>
     {
         var html             = "<ul><li data-value='foo'>foo</li><li data-value='bar'>bar</li></ul>";
         var templatedElement = global.document.createElement( "div" );
@@ -158,7 +158,7 @@ describe( "Select", function()
             "expected Selects default value to equal the first value described in the HTML template" );
     });
 
-    it( "should be able to know its enabled state", function()
+    it( "should be able to know its enabled state", () =>
     {
         var select = new Select( element, null, options );
 
@@ -176,7 +176,7 @@ describe( "Select", function()
             "expected Select not to be enabled after invocation" );
     });
 
-    it( "should be able to know set and unset its focus", function()
+    it( "should be able to know set and unset its focus", () =>
     {
         var select = new Select( element, null, options );
 
@@ -194,7 +194,7 @@ describe( "Select", function()
             "expected Select not to be focused after invocation of blur" );
     });
 
-    it( "should be able to know whether it is opened or closed", function()
+    it( "should be able to know whether it is opened or closed", () =>
     {
         var select = new Select( element, null, options );
 

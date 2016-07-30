@@ -20,26 +20,28 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Pubsub         = require( "pubsub-js" );
-var Messages       = require( "../definitions/Messages" );
-var SelectionModel = require( "../model/SelectionModel" );
-var StateModel     = require( "../model/StateModel" );
-var PatternFactory = require( "../factory/PatternFactory" );
-var Form           = require( "../utils/Form" );
-var NoteUtil       = require( "../utils/NoteUtil" );
-var ObjectUtil     = require( "../utils/ObjectUtil" );
-var TemplateUtil   = require( "../utils/TemplateUtil" );
+"use strict";
+
+const Pubsub         = require( "pubsub-js" );
+const Messages       = require( "../definitions/Messages" );
+const SelectionModel = require( "../model/SelectionModel" );
+const StateModel     = require( "../model/StateModel" );
+const PatternFactory = require( "../factory/PatternFactory" );
+const Form           = require( "../utils/Form" );
+const NoteUtil       = require( "../utils/NoteUtil" );
+const ObjectUtil     = require( "../utils/ObjectUtil" );
+const TemplateUtil   = require( "../utils/TemplateUtil" );
 
 /* private properties */
 
-var container, slocum, noteEntryController, keyboardController;
-var activePattern = 0, activeChannel = 0, activeStep = 0, stepAmount = 16,
+let container, slocum, noteEntryController, keyboardController;
+let activePattern = 0, activeChannel = 0, activeStep = 0, stepAmount = 16,
     stepOnSelection = -1, shrinkSelection = false, minOnSelection, maxOnSelection,
     prevVerticalKey, interactionData = {},
     stateModel, selectionModel, patternCopy, positionTitle,
     stepSelection, channel1attenuation, channel2attenuation;
 
-var PatternController = module.exports =
+const PatternController = module.exports =
 {
     /**
      * initialize PatternController
@@ -49,7 +51,7 @@ var PatternController = module.exports =
      * @param keyboardControllerRef
      * @param noteEntryControllerRef
      */
-    init : function( containerRef, slocumRef, keyboardControllerRef, noteEntryControllerRef )
+    init( containerRef, slocumRef, keyboardControllerRef, noteEntryControllerRef )
     {
         slocum              = slocumRef;
         keyboardController  = keyboardControllerRef;
@@ -86,7 +88,7 @@ var PatternController = module.exports =
         channel1attenuation.addEventListener( "change", handleAttenuationChange );
         channel2attenuation.addEventListener( "change", handleAttenuationChange );
 
-        var pSection = document.querySelector( "#patternSection" );
+        let pSection = document.querySelector( "#patternSection" );
         pSection.addEventListener( "mouseover", handleMouseOver );
 
         // subscribe to pubsub messaging
@@ -95,12 +97,12 @@ var PatternController = module.exports =
         Pubsub.subscribe( Messages.REFRESH_SONG, handleBroadcast );
     },
 
-    update : function()
+    update()
     {
         if ( activePattern >= slocum.activeSong.patterns.length )
             activePattern = slocum.activeSong.patterns.length - 1;
 
-        var pattern = slocum.activeSong.patterns[ activePattern ];
+        let pattern = slocum.activeSong.patterns[ activePattern ];
         container.innerHTML = TemplateUtil.render( "patternEditor", {
             steps   : pattern.steps,
             pattern : pattern
@@ -116,11 +118,11 @@ var PatternController = module.exports =
 
     /* event handlers */
 
-    handleKey : function( type, keyCode, aEvent )
+    handleKey( type, keyCode, aEvent )
     {
         if ( type === "down" )
         {
-            var curStep    = activeStep,
+            let curStep    = activeStep,
                 curChannel = activeChannel;
 
             switch ( keyCode )
@@ -160,7 +162,7 @@ var PatternController = module.exports =
 
                 case 40: // down
 
-                    var maxStep = slocum.activeSong.patterns[ activePattern ].steps - 1;
+                    let maxStep = slocum.activeSong.patterns[ activePattern ].steps - 1;
 
                     if ( ++activeStep > maxStep )
                         activeStep = maxStep;
@@ -250,7 +252,7 @@ var PatternController = module.exports =
 
                     if ( keyboardController.hasOption( aEvent ))
                     {
-                        var state;
+                        let state;
                         if ( !aEvent.shiftKey )
                             state = stateModel.undo();
                         else
@@ -339,16 +341,16 @@ function handleBroadcast( type, payload )
 
 function highlightActiveStep()
 {
-    var pContainers = container.querySelectorAll( ".pattern" ),
+    let pContainers = container.querySelectorAll( ".pattern" ),
         pContainer, items, item;
 
-    var activeStyle = "active", selectedStyle = "selected";
+    let activeStyle = "active", selectedStyle = "selected";
 
-    for ( var i = 0, l = pContainers.length; i < l; ++i ) {
+    for ( let i = 0, l = pContainers.length; i < l; ++i ) {
         pContainer = pContainers[ i ];
         items = pContainer.querySelectorAll( "li" );
 
-        var j = items.length;
+        let j = items.length;
         while ( j-- )
         {
             item = items[ j ];
@@ -397,14 +399,14 @@ function handleInteraction( aEvent )
 
     if ( aEvent.target.nodeName === "LI" )
     {
-        var pContainers = container.querySelectorAll( ".pattern" ),
+        let pContainers = container.querySelectorAll( ".pattern" ),
         pContainer, items;
 
-        for ( var i = 0, l = pContainers.length; i < l; ++i ) {
+        for ( let i = 0, l = pContainers.length; i < l; ++i ) {
             pContainer = pContainers[ i ];
             items = pContainer.querySelectorAll( "li" );
 
-            var j = items.length;
+            let j = items.length;
             while ( j-- )
             {
                 if ( items[ j ] === aEvent.target ) {
@@ -429,11 +431,11 @@ function handleInteraction( aEvent )
 
 function editStep()
 {
-    var pattern = slocum.activeSong.patterns[ activePattern ];
-    var channel = pattern.channels[ activeChannel ];
-    var step    = channel[ activeStep ];
+    let pattern = slocum.activeSong.patterns[ activePattern ];
+    let channel = pattern.channels[ activeChannel ];
+    let step    = channel[ activeStep ];
 
-    var options = ( step ) ?
+    let options = ( step ) ?
     {
         sound : step.sound,
         note  : step.note,
@@ -451,7 +453,7 @@ function editStep()
 
         if ( data )
         {
-            var valid = ( data.sound !== "" && data.note !== "" && data.octave !== "" );
+            let valid = ( data.sound !== "" && data.note !== "" && data.octave !== "" );
 
             // percussive sounds are always valid (require no pitch and octave)
 
@@ -489,7 +491,7 @@ function handlePatternPaste( aEvent )
 
 function handlePatternAdd( aEvent )
 {
-    var song     = slocum.activeSong,
+    let song     = slocum.activeSong,
         patterns = song.patterns;
 
     if ( patterns.length === 128 ) {
@@ -497,8 +499,8 @@ function handlePatternAdd( aEvent )
         return;
     }
 
-    var front = patterns.slice( 0, activePattern + 1 );
-    var back  = patterns.slice( activePattern + 1 );
+    let front = patterns.slice( 0, activePattern + 1 );
+    let back  = patterns.slice( activePattern + 1 );
 
     front.push( PatternFactory.createEmptyPattern( stepAmount ));
 
@@ -510,7 +512,7 @@ function handlePatternAdd( aEvent )
 
 function handlePatternDelete( aEvent )
 {
-    var song     = slocum.activeSong,
+    let song     = slocum.activeSong,
         patterns = song.patterns;
 
     if ( patterns.length === 1 )
@@ -541,7 +543,7 @@ function handlePatternNavBack( aEvent )
 
 function handlePatternNavNext( aEvent )
 {
-    var max = slocum.activeSong.patterns.length - 1;
+    let max = slocum.activeSong.patterns.length - 1;
 
     if ( activePattern < max ) {
         ++activePattern;
@@ -552,18 +554,18 @@ function handlePatternNavNext( aEvent )
 
 function handlePatternStepChange( aEvent )
 {
-    var song    = slocum.activeSong,
+    let song    = slocum.activeSong,
         pattern = song.patterns[ activePattern ];
 
-    var oldAmount = pattern.steps;
-    var newAmount = parseInt( Form.getSelectedOption( stepSelection ), 10 );
+    let oldAmount = pattern.steps;
+    let newAmount = parseInt( Form.getSelectedOption( stepSelection ), 10 );
 
     // update model values
     pattern.steps = newAmount;
 
     pattern.channels.forEach( function( channel, index )
     {
-        var transformed = new Array( newAmount), i, j, increment;
+        let transformed = new Array( newAmount), i, j, increment;
 
         if ( newAmount < oldAmount )
         {
@@ -588,7 +590,7 @@ function handlePatternStepChange( aEvent )
 
 function handleAttenuationChange( aEvent )
 {
-    var pattern = slocum.activeSong.patterns[ activePattern ], value;
+    let pattern = slocum.activeSong.patterns[ activePattern ], value;
     switch ( aEvent.target )
     {
         case channel1attenuation:

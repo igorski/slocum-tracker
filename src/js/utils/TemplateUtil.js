@@ -20,8 +20,11 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Handlebars = require( "handlebars/dist/handlebars.runtime.min.js" );
-var templates  = require( "../handlebars/templates" )( Handlebars );
+"use strict";
+
+const Handlebars   = require( "handlebars/dist/handlebars.runtime.min.js" );
+const templateFile = require( "../handlebars/templates" );
+const templates    = new templateFile( Handlebars );
 
 /* register Handlebars helpers */
 
@@ -30,7 +33,7 @@ var templates  = require( "../handlebars/templates" )( Handlebars );
  *
  * {{toLowerCase propertyName}}
  */
-Handlebars.registerHelper( "toLowerCase", function( string )
+Handlebars.registerHelper( "toLowerCase", ( string ) =>
 {
     if ( typeof string === "string" )
         return string.toLowerCase();
@@ -43,11 +46,11 @@ Handlebars.registerHelper( "toLowerCase", function( string )
  *
  * {{loop 10}}
  */
-Handlebars.registerHelper( "loop", function( n, block )
+Handlebars.registerHelper( "loop", ( n, block ) =>
 {
-    var out = "";
+    let out = "";
 
-    for( var i = 0; i < n; ++i )
+    for( let i = 0; i < n; ++i )
         out += block.fn( i );
 
     return out;
@@ -64,7 +67,7 @@ module.exports =
      *
      * @return {string} HTML template data
      */
-    render : function( templateName, data )
+    render( templateName, data )
     {
         if ( typeof templates[ templateName ] === "function" )
             return templates[ templateName ]( data );

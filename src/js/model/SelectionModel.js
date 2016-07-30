@@ -20,10 +20,12 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+"use strict";
+
 module.exports = SelectionModel;
 
-var PatternFactory = require( "../factory/PatternFactory" );
-var ObjectUtil     = require( "../utils/ObjectUtil" );
+const PatternFactory = require( "../factory/PatternFactory" );
+const ObjectUtil     = require( "../utils/ObjectUtil" );
 
 function SelectionModel()
 {
@@ -55,13 +57,13 @@ function SelectionModel()
  */
 SelectionModel.prototype.setSelection = function( activeChannel, selectionStart, selectionEnd )
 {
-    var prevLength    = this.getMinValue();
-    var forceEqualize = this.selection[( activeChannel === 0 ) ? 1 : 0 ].length > 0;
+    let prevLength    = this.getMinValue();
+    let forceEqualize = this.selection[( activeChannel === 0 ) ? 1 : 0 ].length > 0;
     this.clearSelection();
 
-    var patterns = this.selection[ activeChannel ];
+    let patterns = this.selection[ activeChannel ];
 
-    for ( var i = selectionStart; i < selectionEnd; ++i )
+    for ( let i = selectionStart; i < selectionEnd; ++i )
         patterns.push( i );
 
     if ( prevLength === 0 && patterns.length === 2 )
@@ -85,8 +87,8 @@ SelectionModel.prototype.equalizeSelection = function( activeChannel, force )
 
     if (( force === true ))
     {
-        var currentChannel = this.selection[ activeChannel ];
-        var otherChannel   = this.selection[ ( activeChannel === 0 ) ? 1 : 0 ];
+        let currentChannel = this.selection[ activeChannel ];
+        let otherChannel   = this.selection[ ( activeChannel === 0 ) ? 1 : 0 ];
 
         currentChannel.forEach( function( pattern, index )
         {
@@ -116,8 +118,8 @@ SelectionModel.prototype.clearSelection = function()
  */
 SelectionModel.prototype.getMinValue = function()
 {
-    var val1 = Math.min.apply( Math, this.selection[ 0 ]);
-    var val2 = Math.min.apply( Math, this.selection[ 1 ]);
+    let val1 = Math.min.apply( Math, this.selection[ 0 ]);
+    let val2 = Math.min.apply( Math, this.selection[ 1 ]);
 
     return Math.min( val1, val2 );
 };
@@ -130,8 +132,8 @@ SelectionModel.prototype.getMinValue = function()
  */
 SelectionModel.prototype.getMaxValue = function()
 {
-    var val1 = Math.max.apply( Math, this.selection[ 0 ]);
-    var val2 = Math.max.apply( Math, this.selection[ 1 ]);
+    let val1 = Math.max.apply( Math, this.selection[ 0 ]);
+    let val2 = Math.max.apply( Math, this.selection[ 1 ]);
 
     return Math.max( val1, val2 );
 };
@@ -169,13 +171,13 @@ SelectionModel.prototype.copySelection = function( song, activePattern )
 
     this._copySelection = [ [], [] ];
 
-    var pattern = song.patterns[ activePattern ];
+    let pattern = song.patterns[ activePattern ];
 
-    for ( var i = 0; i < 2; ++i )
+    for ( let i = 0; i < 2; ++i )
     {
         if ( this.selection[ i ].length > 0 )
         {
-            for ( var j = this.getMinValue(), l = this.getMaxValue(); j <= l; ++j )
+            for ( let j = this.getMinValue(), l = this.getMaxValue(); j <= l; ++j )
                this._copySelection[ i ].push( ObjectUtil.clone( pattern.channels[ i ][ j ]));
         }
     }
@@ -215,13 +217,13 @@ SelectionModel.prototype.deleteSelection = function( song, activePattern )
     if ( this.getSelectionLength() === 0 )
         return;
 
-    var pattern = song.patterns[ activePattern ];
+    let pattern = song.patterns[ activePattern ];
 
-    for ( var i = 0; i < 2; ++i )
+    for ( let i = 0; i < 2; ++i )
     {
         if ( this.selection[ i ].length > 0 )
         {
-            for ( var j = this.getMinValue(), l = this.getMaxValue(); j <= l; ++j )
+            for ( let j = this.getMinValue(), l = this.getMaxValue(); j <= l; ++j )
                 pattern.channels[ i ][ j ] = PatternFactory.generateEmptyPatternStep();
         }
     }
@@ -239,9 +241,9 @@ SelectionModel.prototype.pasteSelection = function( song, activePattern, activeC
 {
     if ( this._copySelection !== null )
     {
-        var target = song.patterns[ activePattern ];
-        var targetPattern, writeIndex;
-        var j = 0;
+        let target = song.patterns[ activePattern ];
+        let targetPattern, writeIndex;
+        let j = 0;
 
         if (( activeChannel === 0 && this._copySelection[ 0 ].length === 0 ) ||
             ( activeChannel === 1 && this._copySelection[ 0 ].length === 0 ))
@@ -249,7 +251,7 @@ SelectionModel.prototype.pasteSelection = function( song, activePattern, activeC
             j = 1;
         }
 
-        for ( var i = activeChannel; i < 2 && j < 2; ++i, ++j )
+        for ( let i = activeChannel; i < 2 && j < 2; ++i, ++j )
         {
             targetPattern = target.channels[ i ];
 
@@ -271,7 +273,7 @@ SelectionModel.prototype.pasteSelection = function( song, activePattern, activeC
 
 SelectionModel.prototype.sort = function()
 {
-    var sortMethod = function( a, b ){ return a-b; };
+    let sortMethod = function( a, b ){ return a-b; };
 
     this.selection[ 0 ].sort( sortMethod );
     this.selection[ 1 ].sort( sortMethod );

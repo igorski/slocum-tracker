@@ -20,18 +20,20 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var AssemblerFactory = require( "../factory/AssemblerFactory" );
-var Time             = require( "../utils/Time" );
-var TemplateUtil     = require( "../utils/TemplateUtil" );
-var SongUtil         = require( "../utils/SongUtil" );
-var Pubsub           = require( "pubsub-js" );
-var Messages         = require( "../definitions/Messages" );
+"use strict";
+
+const AssemblerFactory = require( "../factory/AssemblerFactory" );
+const Time             = require( "../utils/Time" );
+const TemplateUtil     = require( "../utils/TemplateUtil" );
+const SongUtil         = require( "../utils/SongUtil" );
+const Pubsub           = require( "pubsub-js" );
+const Messages         = require( "../definitions/Messages" );
 
 /* private properties */
 
-var container, slocum, keyboardController, list;
+let container, slocum, keyboardController, list;
 
-var SongController = module.exports =
+const SongController = module.exports =
 {
     /**
      * initialize SongController, attach SongView template into give container
@@ -40,7 +42,7 @@ var SongController = module.exports =
      * @param slocumRef
      * @param keyboardControllerRef
      */
-    init : function( containerRef, slocumRef, keyboardControllerRef )
+    init( containerRef, slocumRef, keyboardControllerRef )
     {
         container          = containerRef;
         slocum             = slocumRef;
@@ -71,7 +73,7 @@ var SongController = module.exports =
         });
     },
 
-    handleKey : function( type, keyCode, event )
+    handleKey( type, keyCode, event )
     {
         if ( type === "down" && keyCode === 27 )
         {
@@ -87,7 +89,7 @@ function handleLoad( aEvent )
 {
     Pubsub.publish( Messages.CLOSE_OVERLAYS, SongController ); // close open overlays
 
-    var songs = slocum.SongModel.getSongs(), li;
+    let songs = slocum.SongModel.getSongs(), li;
     list.innerHTML = "";
 
     if ( songs.length === 0 ) {
@@ -111,7 +113,7 @@ function handleLoad( aEvent )
 
 function handleSave( aEvent )
 {
-    var song = slocum.activeSong;
+    let song = slocum.activeSong;
 
     if ( isValid( song )) {
         slocum.SongModel.saveSong( song );
@@ -123,7 +125,7 @@ function handleSongClick( aEvent )
 {
     if ( aEvent.target.nodeName === "LI" )
     {
-        var id = aEvent.target.getAttribute( "data-id" );
+        let id = aEvent.target.getAttribute( "data-id" );
         Pubsub.publish( Messages.LOAD_SONG, id );
         list.classList.remove( "active" );
     }
@@ -139,20 +141,20 @@ function handleReset( aEvent )
 
 function handleExport( aEvent )
 {
-    var song = slocum.activeSong;
+    let song = slocum.activeSong;
 
     if ( isValid( song ))
     {
-        var asm = AssemblerFactory.assemblify( song );
+        let asm = AssemblerFactory.assemble( song );
 
         // download file to disk
 
-        var pom = document.createElement( "a" );
+        let pom = document.createElement( "a" );
         pom.setAttribute( "href", "data:text/plain;charset=utf-8," + encodeURIComponent( asm ));
         pom.setAttribute( "download", "song.h" );
 
         if ( document.createEvent ) {
-            var event = document.createEvent( "MouseEvents" );
+            let event = document.createEvent( "MouseEvents" );
             event.initEvent( "click", true, true );
             pom.dispatchEvent( event );
         }
@@ -171,7 +173,7 @@ function handleExport( aEvent )
  */
 function isValid( song )
 {
-    var hasContent = SongUtil.hasContent( song );
+    let hasContent = SongUtil.hasContent( song );
 
     if ( !hasContent ) {
         Pubsub.publish( Messages.SHOW_ERROR, "Song has no pattern content!" );

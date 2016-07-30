@@ -3,7 +3,7 @@
  */
 var chai = require( "chai" );
 
-describe( "namespace.Function", function()
+describe( "namespace.Function", () =>
 {
     /* setup */
 
@@ -13,35 +13,35 @@ describe( "namespace.Function", function()
 
     // executed before the tests start running
 
-    before( function()
+    before( () =>
     {
 
     });
 
     // executed when all tests have finished running
 
-    after( function()
+    after( () =>
     {
 
     });
 
     // executed before each individual test
 
-    beforeEach( function()
+    beforeEach( () =>
     {
 
     });
 
     // executed after each individual test
 
-    afterEach( function()
+    afterEach( () =>
     {
 
     });
 
     /* actual unit tests */
 
-    //it( "puts the lotion on its skin", function()
+    //it( "puts the lotion on its skin", () =>
     //{
     //
     //});

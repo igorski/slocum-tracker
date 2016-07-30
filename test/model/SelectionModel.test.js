@@ -5,7 +5,7 @@ var chai           = require( "chai" );
 var SelectionModel = require( "../../src/js/model/SelectionModel" );
 var SongModel      = require( "../../src/js/model/SongModel" );
 
-describe( "SelectionModel", function()
+describe( "SelectionModel", () =>
 {
     /* setup */
 
@@ -17,35 +17,35 @@ describe( "SelectionModel", function()
 
     // executed before the tests start running
 
-    before( function()
+    before( () =>
     {
         model = new SelectionModel( new SongModel() );
     });
 
     // executed when all tests have finished running
 
-    after( function()
+    after( () =>
     {
 
     });
 
     // executed before each individual test
 
-    beforeEach( function()
+    beforeEach( () =>
     {
         model.clearSelection();
     });
 
     // executed after each individual test
 
-    afterEach( function()
+    afterEach( () =>
     {
 
     });
 
     /* actual unit tests */
 
-    it( "should add indices to its current selection", function()
+    it( "should add indices to its current selection", () =>
     {
         var activeChannel = 0, max = 16;
         model.setSelection( activeChannel, 0, max );
@@ -57,7 +57,7 @@ describe( "SelectionModel", function()
         }
     });
 
-    it( "should add not add the same index twice to its current selection", function()
+    it( "should add not add the same index twice to its current selection", () =>
     {
         var activeChannel = 0, max = 1;
 
@@ -75,7 +75,7 @@ describe( "SelectionModel", function()
             "expected selection to remain at length of 1 after addition of same value" );
     });
 
-    it ( "should be able to clear its selection", function()
+    it ( "should be able to clear its selection", () =>
     {
         model.setSelection( 0, 0, 1 );
         model.setSelection( 1, 0, 2 );
@@ -92,7 +92,7 @@ describe( "SelectionModel", function()
             "expected model not to have a selection after clearing" );
     });
 
-    it( "should equalize the selection for both channels when forced", function()
+    it( "should equalize the selection for both channels when forced", () =>
     {
         var activeChannel = 0;
         var otherChannel  = 1;
@@ -107,7 +107,7 @@ describe( "SelectionModel", function()
             "expected both channel contents to be equal but they were not" );
     });
 
-    it( "should equalize the selection for both channels if both channels had content", function()
+    it( "should equalize the selection for both channels if both channels had content", () =>
     {
         var activeChannel = 0;
         var otherChannel  = 1;
@@ -120,7 +120,7 @@ describe( "SelectionModel", function()
             "expected both channel contents to be equal but they were not" );
     });
 
-    it( "should know the minimum, maximum values of its selection", function()
+    it( "should know the minimum, maximum values of its selection", () =>
     {
         var min = 0;
         var max = 16;
@@ -136,7 +136,7 @@ describe( "SelectionModel", function()
             "expected model to return '" + expected + "' for its maximum selection value" );
     });
 
-    it( "should know the full length of its selection", function()
+    it( "should know the full length of its selection", () =>
     {
         var min = 0;
         var max = 16;
@@ -149,7 +149,7 @@ describe( "SelectionModel", function()
             "expected model to return '" + expected + "' for its selection length" );
     });
 
-    it( "should know whether it has a selection", function()
+    it( "should know whether it has a selection", () =>
     {
         assert.notOk( model.hasSelection(),
             "expected model not to have a selection by default" );

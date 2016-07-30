@@ -5,7 +5,7 @@ var chai        = require( "chai" );
 var MockBrowser = require( "mock-browser" ).mocks.MockBrowser;
 var SongModel   = require( "../../src/js/model/SongModel" );
 
-describe( "SongModel", function()
+describe( "SongModel", () =>
 {
     /* setup */
 
@@ -17,7 +17,7 @@ describe( "SongModel", function()
 
     // executed before the tests start running
 
-    before( function()
+    before( () =>
     {
         browser       = new MockBrowser();
         global.window = browser.getWindow();
@@ -25,14 +25,14 @@ describe( "SongModel", function()
 
     // executed when all tests have finished running
 
-    after( function()
+    after( () =>
     {
 
     });
 
     // executed before each individual test
 
-    beforeEach( function()
+    beforeEach( () =>
     {
         model = new SongModel();
         model._songs = []; // no fixtures during test
@@ -40,14 +40,14 @@ describe( "SongModel", function()
 
     // executed after each individual test
 
-    afterEach( function()
+    afterEach( () =>
     {
         global.window.localStorage.clear();
     });
 
     /* actual unit tests */
 
-    it( "should be able to create songs", function()
+    it( "should be able to create songs", () =>
     {
         var song = model.createSong();
 
@@ -76,7 +76,7 @@ describe( "SongModel", function()
         }
     });
 
-    it( "should be able to save songs in storage", function()
+    it( "should be able to save songs in storage", () =>
     {
         var song = model.createSong();
 
@@ -110,7 +110,7 @@ describe( "SongModel", function()
 
         // a slight timeout so the timestamp can update
 
-        setTimeout( function()
+        setTimeout( () =>
         {
             model.saveSong( song );
 
@@ -125,7 +125,7 @@ describe( "SongModel", function()
         }, 2 );
     });
 
-    it( "should be able to delete songs from storage", function()
+    it( "should be able to delete songs from storage", () =>
     {
         var song  = model.createSong();
         var song2 = model.createSong();
@@ -147,7 +147,7 @@ describe( "SongModel", function()
             "expected no songs to remain in model after deletion of all songs" );
     });
 
-    it( "should be able to retrieve individual songs by their id", function()
+    it( "should be able to retrieve individual songs by their id", () =>
     {
         var song  = model.createSong();
         var song2 = model.createSong();

@@ -20,20 +20,22 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var TemplateUtil = require( "../utils/TemplateUtil" );
-var NoteUtil     = require( "../utils/NoteUtil" );
-var Messages     = require( "../definitions/Messages" );
-var Select       = require( "../ui/Select" );
-var SelectList   = require( "../ui/SelectList" );
-var TIA          = require( "../definitions/TIA" );
-var Pubsub       = require( "pubsub-js" );
+"use strict";
+
+const TemplateUtil = require( "../utils/TemplateUtil" );
+const NoteUtil     = require( "../utils/NoteUtil" );
+const Messages     = require( "../definitions/Messages" );
+const Select       = require( "../ui/Select" );
+const SelectList   = require( "../ui/SelectList" );
+const TIA          = require( "../definitions/TIA" );
+const Pubsub       = require( "pubsub-js" );
 
 /* private properties */
 
-var container, element, slocum, keyboardController;
-var selectList, soundSelect, noteSelect, octaveSelect, accentSelect, data, callback;
+let container, element, slocum, keyboardController;
+let selectList, soundSelect, noteSelect, octaveSelect, accentSelect, data, callback;
 
-var NoteEntryController = module.exports =
+const NoteEntryController = module.exports =
 {
     /**
      * initialize NoteEntryController
@@ -42,7 +44,7 @@ var NoteEntryController = module.exports =
      * @param slocumRef
      * @param keyboardControllerRef
      */
-    init : function( containerRef, slocumRef, keyboardControllerRef )
+    init( containerRef, slocumRef, keyboardControllerRef )
     {
         container          = containerRef;
         slocum             = slocumRef;
@@ -85,7 +87,7 @@ var NoteEntryController = module.exports =
      * @param {Object} options
      * @param {Function} completeCallback
      */
-    open : function( options, completeCallback )
+    open( options, completeCallback )
     {
         Pubsub.publish( Messages.CLOSE_OVERLAYS, NoteEntryController ); // close open overlays
 
@@ -121,7 +123,7 @@ var NoteEntryController = module.exports =
 
     /* event handlers */
 
-    handleKey : function( type, keyCode, event )
+    handleKey( type, keyCode, event )
     {
         if ( type === "down" )
         {
@@ -165,11 +167,11 @@ function handleReady()
 
 function setSelectOptions()
 {
-    var tuning = slocum.activeSong.meta.tuning;
-    var values = TIA.table.tunings[ tuning ];
-    var perc   = TIA.table.PERCUSSION;
+    let tuning = slocum.activeSong.meta.tuning;
+    let values = TIA.table.tunings[ tuning ];
+    let perc   = TIA.table.PERCUSSION;
 
-    var soundOptions = [];
+    let soundOptions = [];
 
     perc.forEach( function( p )
     {
@@ -187,10 +189,10 @@ function setSelectOptions()
 
 function handleSoundSelect()
 {
-    var sound  = soundSelect.getValue();
-    var tuning = slocum.activeSong.meta.tuning;
-    var values = TIA.table.tunings[ tuning ][ sound ];
-    var noteOptions = [], collectedNotes = [], note;
+    let sound  = soundSelect.getValue();
+    let tuning = slocum.activeSong.meta.tuning;
+    let values = TIA.table.tunings[ tuning ][ sound ];
+    let noteOptions = [], collectedNotes = [], note;
 
     if ( values ) {
         Object.keys( values ).forEach( function( key )
@@ -209,15 +211,15 @@ function handleSoundSelect()
 
 function handleNoteSelect()
 {
-    var sound  = soundSelect.getValue();
-    var note   = noteSelect.getValue();
-    var tuning = slocum.activeSong.meta.tuning;
-    var values = TIA.table.tunings[ tuning ][ sound ];
-    var octaveOptions = [], entry;
+    let sound  = soundSelect.getValue();
+    let note   = noteSelect.getValue();
+    let tuning = slocum.activeSong.meta.tuning;
+    let values = TIA.table.tunings[ tuning ][ sound ];
+    let octaveOptions = [], entry;
 
     if ( values )
     {
-        for ( var i = 0; i < values.length; ++i )
+        for ( let i = 0; i < values.length; ++i )
         {
             entry = values[ i ];
             if ( entry.note === note )

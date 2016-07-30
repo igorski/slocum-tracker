@@ -20,8 +20,10 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Fixtures       = require( "../definitions/Fixtures" );
-var PatternFactory = require( "../factory/PatternFactory" );
+"use strict";
+
+const Fixtures       = require( "../definitions/Fixtures" );
+const PatternFactory = require( "../factory/PatternFactory" );
 
 module.exports = SongModel;
 
@@ -37,7 +39,7 @@ function SongModel()
 
     /* upon initialization, get all locally stored songs */
 
-    var songs = window.localStorage.getItem( 'songs' );
+    let songs = window.localStorage.getItem( 'songs' );
 
     // no songs available ? load fixtures with "factory content"
 
@@ -71,7 +73,7 @@ SongModel.prototype.getSongs = function()
  */
 SongModel.prototype.getSongById = function( id )
 {
-    var i = this._songs.length, song;
+    let i = this._songs.length, song;
 
     while ( i-- )
     {
@@ -162,8 +164,8 @@ SongModel.prototype.saveSong = function( aSong )
  */
 SongModel.prototype.deleteSong = function( aSong )
 {
-    var deleted = false;
-    var i = this._songs.length, song;
+    let deleted = false;
+    let i = this._songs.length, song;
 
     // remove duplicate song if existed
 

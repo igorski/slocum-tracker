@@ -20,21 +20,23 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Pubsub       = require( "pubsub-js" );
-var Messages     = require( "../definitions/Messages" );
-var TemplateUtil = require( "../utils/TemplateUtil" );
+"use strict";
+
+const Pubsub       = require( "pubsub-js" );
+const Messages     = require( "../definitions/Messages" );
+const TemplateUtil = require( "../utils/TemplateUtil" );
 
 /* variables */
 
-var container;
+let container;
 
 /**
  * a controller that can spawn dialog windows to
  * communicate state changes / errors / feedback to the user
  */
-var NotificationController = module.exports =
+module.exports =
 {
-    init : function( containerRef )
+    init( containerRef )
     {
         container = document.createElement( "div" );
         container.setAttribute( "id", "notifications" );
@@ -71,18 +73,18 @@ function handleBroadcast( type, payload )
 
 function openWindow( title, body )
 {
-    var dialog       = document.createElement( "div" );
+    const dialog     = document.createElement( "div" );
     dialog.className = "notificationWindow";
     dialog.innerHTML = TemplateUtil.render( "notificationView", { title: title, content: body });
     container.appendChild( dialog );
     dialog.classList.add( "visible" );
 
-    var closeDialog = function()
+    const closeDialog = function()
     {
         dialog.removeEventListener( "click", closeDialog );
         dialog.classList.remove( "visible" );
 
-        setTimeout( function() {
+        setTimeout( () => {
             if ( dialog.parentNode )
                 container.removeChild( dialog );
         }, 1000 );

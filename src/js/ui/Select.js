@@ -20,6 +20,8 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+"use strict";
+
 module.exports = Select;
 
 /**
@@ -108,11 +110,11 @@ function Select( aElement, aChangeCallback, aOptions )
     else
     {
         this._container = aElement;
-        var foundList   = false;
+        let foundList   = false;
 
         if ( aElement.childNodes.length > 0 )
         {
-            var i = aElement.childNodes.length, node, child;
+            let i = aElement.childNodes.length, node, child;
 
             while ( i-- )
             {
@@ -122,7 +124,7 @@ function Select( aElement, aChangeCallback, aOptions )
                     this._options = [];
 
                     // collect options when defined as li nodes
-                    var j = node.childNodes.length;
+                    let j = node.childNodes.length;
                     while ( j-- ) {
                         child = node.childNodes[ j ];
                         if ( child.tagName === "LI" ) {
@@ -167,7 +169,7 @@ Select.prototype.setOptions = function( aOptions )
     this._selectedIndex = 0;
     this._options       = aOptions;
 
-    var element = this._element;
+    let element = this._element;
 
     // remove existing contents
 
@@ -175,7 +177,7 @@ Select.prototype.setOptions = function( aOptions )
         element.removeChild( element.childNodes[ 0 ]);
     }
 
-    var option;
+    let option;
     aOptions.forEach( function( aOption, index )
     {
         option = document.createElement( "li" );
@@ -229,7 +231,7 @@ Select.prototype.setValue = function( value, dispatch )
 
     dispatch = ( typeof dispatch === "boolean" ) ? dispatch : true;
 
-    var i = this._options.length, option;
+    let i = this._options.length, option;
     while ( i-- )
     {
         option = this._options[ i ];
@@ -262,12 +264,13 @@ Select.prototype.setValueByFirstLetter = function( value )
     if ( typeof value === "string" && value.length > 1 )
         throw new Error( "cannot work with multiple characters, only single digits" );
 
-    var char = value.toString().toUpperCase(), l = this._options.length, option;
+    const char = value.toString().toUpperCase();
+    let i, l = this._options.length, option;
 
     // start from the currently select index (allows jumping between values
     // that have a similar start character)
 
-    for ( var i = this._selectedIndex + 1; i < l; ++i )
+    for ( i = this._selectedIndex + 1; i < l; ++i )
     {
         option = this._options[ i ];
 
@@ -399,8 +402,8 @@ Select.prototype.isOpen = function()
  */
 Select.prototype.handleKey = function( type, keyCode, event )
 {
-    var maxIndex = this._options.length - 1;
-    var handled = true;
+    let maxIndex = this._options.length - 1;
+    let handled = true;
 
     if ( type === "down" )
     {
@@ -410,7 +413,7 @@ Select.prototype.handleKey = function( type, keyCode, event )
 
                 // any other key pressed (likely letter or number)
                 // check whether there is a value in the options list that start with this character
-                var char = String.fromCharCode(( 96 <= keyCode && keyCode <= 105 )? keyCode - 48 : keyCode );
+                let char = String.fromCharCode(( 96 <= keyCode && keyCode <= 105 )? keyCode - 48 : keyCode );
                 handled = this.setValueByFirstLetter( char );
                 break;
 
@@ -490,7 +493,7 @@ Select.prototype.handleClick = function( aEvent )
         }
     }
     else {
-        var target = aEvent.target;
+        let target = aEvent.target;
         if ( target.nodeName === "LI" )
             this.setValue( target.getAttribute( "data-value" ));
 

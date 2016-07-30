@@ -20,16 +20,18 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Pubsub       = require( "pubsub-js" );
-var Messages     = require( "../definitions/Messages" );
-var TemplateUtil = require( "../utils/TemplateUtil" );
+"use strict";
+
+const Pubsub       = require( "pubsub-js" );
+const Messages     = require( "../definitions/Messages" );
+const TemplateUtil = require( "../utils/TemplateUtil" );
 
 /* private properties */
 
-var container, slocum;
-var contentContainer, currentSection;
+let container, slocum;
+let contentContainer, currentSection;
 
-var HelpController = module.exports =
+module.exports =
 {
     /**
      * initialize HelpController, attach HelpView template into give container
@@ -37,7 +39,7 @@ var HelpController = module.exports =
      * @param containerRef
      * @param slocumRef
      */
-    init : function( containerRef, slocumRef )
+    init( containerRef, slocumRef )
     {
         container          = containerRef;
         slocum             = slocumRef;
@@ -70,7 +72,7 @@ function handleBroadcast( type, payload )
 
             if ( currentSection !== payload )
             {
-                var template = TemplateUtil.render( payload );
+                let template = TemplateUtil.render( payload );
 
                 if ( template.length > 0 )
                     contentContainer.innerHTML = template;

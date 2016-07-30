@@ -20,12 +20,14 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Time         = require( "../utils/Time" );
-var ObjectUtil   = require( "../utils/ObjectUtil" );
-var TemplateUtil = require( "../utils/TemplateUtil" );
-var NoteUtil     = require( "../utils/NoteUtil" );
-var TIA          = require( "../definitions/TIA" );
-var MD5          = require( "md5" );
+"use strict";
+
+const Time         = require( "../utils/Time" );
+const ObjectUtil   = require( "../utils/ObjectUtil" );
+const TemplateUtil = require( "../utils/TemplateUtil" );
+const NoteUtil     = require( "../utils/NoteUtil" );
+const TIA          = require( "../definitions/TIA" );
+const MD5          = require( "md5" );
 
 module.exports =
 {
@@ -34,11 +36,11 @@ module.exports =
      * @param {Object} song JSON song
      * @return {string} song as assembly code for Paul Slocums Sequencer Kit
      */
-    assemblify : function( song )
+    assemble( song )
     {
         // clone data as we must modify some properties prior to passing it to the Handlebars template...
 
-        var data = ObjectUtil.clone( song );
+        let data = ObjectUtil.clone( song );
 
         data.meta.created = Time.timestampToDate( data.meta.created );
         data.patterns     = convertPatterns( data.patterns, TIA.table.tunings[ song.meta.tuning ]);
@@ -52,7 +54,7 @@ module.exports =
 
 function convertPatterns( patterns, tuning )
 {
-    var out = {
+    let out = {
         channel1sequence : "",
         channel2sequence : "",
         patterns         : "",
@@ -60,12 +62,12 @@ function convertPatterns( patterns, tuning )
         patternArrayL    : ""
     };
 
-    var amountOfSteps, patternString, accents, step, code, idx, increment, attenuate, i, writeOffset;
-    var patternWordString, patternId, patternExisted, existingPatternIndex, patternIndex;
+    let amountOfSteps, patternString, accents, step, code, idx, increment, attenuate, i, writeOffset;
+    let patternWordString, patternId, patternExisted, existingPatternIndex, patternIndex;
 
-    var cachedPatterns = {};
-    var patternArrayH  = []; // all high volume patterns
-    var patternArrayL  = []; // all low volume patterns
+    let cachedPatterns = {};
+    let patternArrayH  = []; // all high volume patterns
+    let patternArrayL  = []; // all low volume patterns
 
     patterns.forEach( function( pattern )
     {
@@ -174,7 +176,7 @@ function convertPatterns( patterns, tuning )
 
     // collect all assembled patterns
 
-    var value, replacement;
+    let value, replacement;
 
     Object.keys( cachedPatterns ).forEach( function( key, index )
     {
@@ -195,9 +197,9 @@ function convertPatterns( patterns, tuning )
 
 function convertHatPattern( pattern )
 {
-    var asmPattern = "";
+    let asmPattern = "";
 
-    for ( var i = 0, l = pattern.length; i < l; ++i )
+    for ( let i = 0, l = pattern.length; i < l; ++i )
     {
         if ( i % 8 === 0 )
         {
@@ -213,7 +215,7 @@ function convertHatPattern( pattern )
 
 function getPreviousPatternDeclaration( patternArray, patternString )
 {
-    var i = patternArray.length;
+    let i = patternArray.length;
     while ( i-- )
     {
         if ( patternArray[ i ].indexOf( patternString ) > -1 )

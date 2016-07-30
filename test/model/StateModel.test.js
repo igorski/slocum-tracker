@@ -4,7 +4,7 @@
 var chai       = require( "chai" );
 var StateModel = require( "../../src/js/model/StateModel" );
 
-describe( "StateModel", function()
+describe( "StateModel", () =>
 {
     /* setup */
 
@@ -16,21 +16,21 @@ describe( "StateModel", function()
 
     // executed before the tests start running
 
-    before( function()
+    before( () =>
     {
 
     });
 
     // executed when all tests have finished running
 
-    after( function()
+    after( () =>
     {
 
     });
 
     // executed before each individual test
 
-    beforeEach( function()
+    beforeEach( () =>
     {
         maxStates = Math.round( Math.random() * 100 ) + 10;
         model     = new StateModel( maxStates );
@@ -38,14 +38,14 @@ describe( "StateModel", function()
 
     // executed after each individual test
 
-    afterEach( function()
+    afterEach( () =>
     {
 
     });
 
     /* actual unit tests */
 
-    it( "should be able to store no more states than passed to the constructor", function()
+    it( "should be able to store no more states than passed to the constructor", () =>
     {
         assert.strictEqual( 0, model.getAmountOfStates(),
             "expected 0 states to be stored after model instantiation" );
@@ -75,7 +75,7 @@ describe( "StateModel", function()
         }
     });
 
-    it( "should be able to return to the last stored state", function()
+    it( "should be able to return to the last stored state", () =>
     {
         var states = [], state, i;
 
@@ -102,7 +102,7 @@ describe( "StateModel", function()
         }
     });
 
-    it( "should be able to go back and forth in state history", function()
+    it( "should be able to go back and forth in state history", () =>
     {
         var states = [], state, i;
 

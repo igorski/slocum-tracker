@@ -2,7 +2,12 @@ module.exports = {
     dev: {
         options: {
             browserifyOptions: {
-                debug: true
+                debug: true,
+                transform: [
+                    ["babelify", {
+                        loose: "all"
+                    }]
+                ]
             }
         },
         files: {
@@ -12,7 +17,12 @@ module.exports = {
     prod: {
         options: {
             browserifyOptions: {
-                debug: false
+                debug: false,
+                transform: [
+                    ["babelify", {
+                        loose: "all"
+                    }]
+                ]
             }
         },
         files: {

@@ -4,7 +4,7 @@
 var chai = require( "chai" );
 var PatternFactory = require( "../../src/js/factory/PatternFactory" );
 
-describe( "PatternFactory", function()
+describe( "PatternFactory", () =>
 {
     /* setup */
 
@@ -14,35 +14,35 @@ describe( "PatternFactory", function()
 
     // executed before the tests start running
 
-    before( function()
+    before( () =>
     {
 
     });
 
     // executed when all tests have finished running
 
-    after( function()
+    after( () =>
     {
 
     });
 
     // executed before each individual test
 
-    beforeEach( function()
+    beforeEach( () =>
     {
 
     });
 
     // executed after each individual test
 
-    afterEach( function()
+    afterEach( () =>
     {
 
     });
 
     /* actual unit tests */
 
-    it( "should be able to generate an empty pattern template for any requested step size", function()
+    it( "should be able to generate an empty pattern template for any requested step size", () =>
     {
         var steps   = Math.round( 1 + ( Math.random() * 32 ));
         var pattern = PatternFactory.createEmptyPattern( steps );
@@ -63,7 +63,7 @@ describe( "PatternFactory", function()
             "expected generated channel pattern to be of equal length" );
     });
 
-    it( "should by default generate an empty pattern template for a 16 step sequence", function()
+    it( "should by default generate an empty pattern template for a 16 step sequence", () =>
     {
         var pattern = PatternFactory.createEmptyPattern();
 
@@ -71,7 +71,7 @@ describe( "PatternFactory", function()
             "expected PatternFactory to have generated a pattern Object of 16 steps in length" );
     });
 
-    it( "should be able to merge equal length patterns", function()
+    it( "should be able to merge equal length patterns", () =>
     {
         var pattern1 = PatternFactory.createEmptyPattern();
         var pattern2 = PatternFactory.createEmptyPattern();
@@ -107,7 +107,7 @@ describe( "PatternFactory", function()
             "expected step content at slot 0 to have merged with the expected step" );
     });
 
-    it( "should be able to merge unequal length patterns when source is larger than target", function()
+    it( "should be able to merge unequal length patterns when source is larger than target", () =>
     {
         var pattern1 = PatternFactory.createEmptyPattern( 16 );
         var pattern2 = PatternFactory.createEmptyPattern( 32 );
@@ -147,7 +147,7 @@ describe( "PatternFactory", function()
     });
 
 
-    it( "should be able to merge unequal length patterns when target is larger than the source", function()
+    it( "should be able to merge unequal length patterns when target is larger than the source", () =>
     {
         var pattern1 = PatternFactory.createEmptyPattern( 32 );
         var pattern2 = PatternFactory.createEmptyPattern( 16 );
@@ -183,7 +183,7 @@ describe( "PatternFactory", function()
             "expected step content at slot 8 to have merged at the expected step after pattern size mutation" );
     });
 
-    it( "should be able to clear the content for any request step", function()
+    it( "should be able to clear the content for any request step", () =>
     {
         var pattern = PatternFactory.createEmptyPattern();
 

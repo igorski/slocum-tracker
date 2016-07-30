@@ -20,18 +20,20 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Form         = require( "../utils/Form" );
-var TemplateUtil = require( "../utils/TemplateUtil" );
-var Pubsub       = require( "pubsub-js" );
-var Messages     = require( "../definitions/Messages" );
+"use strict";
+
+const Form         = require( "../utils/Form" );
+const TemplateUtil = require( "../utils/TemplateUtil" );
+const Pubsub       = require( "pubsub-js" );
+const Messages     = require( "../definitions/Messages" );
 
 /* private properties */
 
-var container, slocum, keyboardController;
-var start, volume, pitch, steps, patternContainer;
-var lastStepAmount = 0;
+let container, slocum, keyboardController;
+let start, volume, pitch, steps, patternContainer;
+let lastStepAmount = 0;
 
-var HatController = module.exports =
+const HatController = module.exports =
 {
     /**
      * initialize HatController, attach HatEditor template into give container
@@ -40,7 +42,7 @@ var HatController = module.exports =
      * @param slocumRef
      * @param keyboardControllerRef
      */
-    init : function( containerRef, slocumRef, keyboardControllerRef )
+    init( containerRef, slocumRef, keyboardControllerRef )
     {
         container          = containerRef;
         slocum             = slocumRef;
@@ -77,16 +79,16 @@ var HatController = module.exports =
      * synchronize MetaView contents with
      * the current state of the model
      */
-    update : function()
+    update()
     {
-        var song = slocum.activeSong,
+        let song = slocum.activeSong,
             hats = song.hats;
 
-        var amountOfPatterns = song.patterns.length;
+        let amountOfPatterns = song.patterns.length;
         // title, value
 
-        var options = [{ title: "Never", value: 255 }];
-        var i = amountOfPatterns, j, button;
+        let options = [{ title: "Never", value: 255 }];
+        let i = amountOfPatterns, j, button;
 
         while ( i-- )
         {
@@ -126,9 +128,9 @@ var HatController = module.exports =
 
         // update pattern buttons
 
-        var pattern   = hats.pattern;
-        var buttons   = patternContainer.querySelectorAll( "li" );
-        var increment = ( pattern.length / buttons.length );
+        let pattern   = hats.pattern;
+        let buttons   = patternContainer.querySelectorAll( "li" );
+        let increment = ( pattern.length / buttons.length );
 
         for ( i = 0, j = 0; i < buttons.length; ++i, j += increment ) {
             button = buttons[ i ];
@@ -141,7 +143,7 @@ var HatController = module.exports =
 
     /* event handlers */
 
-    handleKey : function( type, keyCode, event )
+    handleKey( type, keyCode, event )
     {
         // nothing (yet?)...
     }
@@ -179,8 +181,8 @@ function handleStepsChange( aEvent )
 {
     // pattern amount changed ?
 
-    var hats      = slocum.activeSong.hats;
-    var newAmount = parseInt( steps.value, 10 );
+    let hats      = slocum.activeSong.hats;
+    let newAmount = parseInt( steps.value, 10 );
     hats.steps    = newAmount;
 
     // if the new step amount is less precise than the last, sanitize
@@ -188,14 +190,14 @@ function handleStepsChange( aEvent )
 
     if ( newAmount !== lastStepAmount )
     {
-        var pattern     = hats.pattern;
-        var transformed = new Array( pattern.length );
+        let pattern     = hats.pattern;
+        let transformed = new Array( pattern.length );
 
         if ( newAmount < lastStepAmount )
         {
-            var increment = lastStepAmount / newAmount;
+            let increment = lastStepAmount / newAmount;
 
-            for ( var i = 0; i < transformed.length; ++i )
+            for ( let i = 0; i < transformed.length; ++i )
                 transformed[ i ] = ( i % increment === 0 ) ? pattern[ i ] : 0;
 
             hats.pattern = transformed;
@@ -212,7 +214,7 @@ function handleMouseOver( aEvent )
 
 function handlePatternClick( aEvent )
 {
-    var element = aEvent.target;
+    let element = aEvent.target;
 
     if ( element.tagName === "LI" )
     {
@@ -220,11 +222,11 @@ function handlePatternClick( aEvent )
 
         // update model
 
-        var pattern   = slocum.activeSong.hats.pattern;
-        var buttons   = patternContainer.querySelectorAll( "li" );
-        var increment = ( pattern.length / buttons.length );
+        let pattern   = slocum.activeSong.hats.pattern;
+        let buttons   = patternContainer.querySelectorAll( "li" );
+        let increment = ( pattern.length / buttons.length );
 
-        for ( var i = 0, j = 0; i < buttons.length; ++i, j += increment )
+        for ( let i = 0, j = 0; i < buttons.length; ++i, j += increment )
             pattern[ j ] = buttons[ i ].classList.contains( "active" ) ? 1 : 0;
     }
 }

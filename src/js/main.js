@@ -20,30 +20,28 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var SongModel              = require( "./model/SongModel" );
-var HatController          = require( "./controller/HatController" );
-var HelpController         = require( "./controller/HelpController" );
-var KeyboardController     = require( "./controller/KeyboardController" );
-var MenuController         = require( "./controller/MenuController" );
-var MetaController         = require( "./controller/MetaController" );
-var NoteEntryController    = require( "./controller/NoteEntryController" );
-var NotificationController = require( "./controller/NotificationController" );
-var PatternController      = require( "./controller/PatternController" );
-var SongController         = require( "./controller/SongController" );
-var ObjectUtil             = require( "./utils/ObjectUtil" );
-var TemplateUtil           = require( "./utils/TemplateUtil" );
-var Messages               = require( "./definitions/Messages" );
-var Pubsub                 = require( "pubsub-js" );
+const SongModel              = require( "./model/SongModel" );
+const HatController          = require( "./controller/HatController" );
+const HelpController         = require( "./controller/HelpController" );
+const KeyboardController     = require( "./controller/KeyboardController" );
+const MenuController         = require( "./controller/MenuController" );
+const MetaController         = require( "./controller/MetaController" );
+const NoteEntryController    = require( "./controller/NoteEntryController" );
+const NotificationController = require( "./controller/NotificationController" );
+const PatternController      = require( "./controller/PatternController" );
+const SongController         = require( "./controller/SongController" );
+const ObjectUtil             = require( "./utils/ObjectUtil" );
+const TemplateUtil           = require( "./utils/TemplateUtil" );
+const Messages               = require( "./definitions/Messages" );
+const Pubsub                 = require( "pubsub-js" );
 
 /* initialize */
-
-var slocum;
 
 (function( ref )
 {
     // prepare application model
 
-    slocum = ref.slocum =
+    const slocum = ref.slocum =
     {
         SongModel : new SongModel()
     };
@@ -54,7 +52,7 @@ var slocum;
 
     // prepare view
 
-    var container = document.querySelector( "#application" );
+    const container = document.querySelector( "#application" );
 
     container.innerHTML += TemplateUtil.render( "index" );
 
@@ -84,7 +82,7 @@ function handleBroadcast( type, payload )
     {
         case Messages.LOAD_SONG:
 
-            var song = slocum.SongModel.getSongById( payload );
+            const song = slocum.SongModel.getSongById( payload );
 
             if ( song ) {
                 slocum.activeSong = ObjectUtil.clone( song );

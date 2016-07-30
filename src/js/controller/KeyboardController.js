@@ -20,7 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var slocum, listener, suspended = false, blockDefaults = true, optionDown = false;
+"use strict";
+
+let slocum, listener, suspended = false, blockDefaults = true, optionDown = false;
 
 module.exports =
 {
@@ -29,7 +31,7 @@ module.exports =
      *
      * @param slocumRef
      */
-    init : function( slocumRef )
+    init( slocumRef )
     {
         slocum = slocumRef;
         window.addEventListener( "keydown", handleKeyDown );
@@ -43,7 +45,7 @@ module.exports =
      * @paran {Event} aEvent
      * @returns {boolean}
      */
-    hasOption : function( aEvent )
+    hasOption( aEvent )
     {
         return ( optionDown === true ) || aEvent.ctrlKey;
     },
@@ -59,7 +61,7 @@ module.exports =
      *
      * @param {Object|Function} listenerRef
      */
-    setListener : function( listenerRef )
+    setListener( listenerRef )
     {
         listener = listenerRef;
     },
@@ -70,7 +72,7 @@ module.exports =
      *
      * @param {boolean} value
      */
-    setSuspended : function( value )
+    setSuspended( value )
     {
         suspended = value;
     },
@@ -80,7 +82,7 @@ module.exports =
      *
      * @param value
      */
-    setBlockDefaults : function( value )
+    setBlockDefaults( value )
     {
         blockDefaults = value;
     }

@@ -20,6 +20,8 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+"use strict";
+
 module.exports = SelectList;
 
 function SelectList( selects, parent, keyboardControllerRef )
@@ -88,8 +90,8 @@ function SelectList( selects, parent, keyboardControllerRef )
  */
 SelectList.prototype.focus = function( selectIndex, force )
 {
-    var backwards = ( selectIndex < this._currentFocus );
-    var i, nextFocused;
+    let backwards = ( selectIndex < this._currentFocus );
+    let i, nextFocused;
 
     if ( !backwards )
     {
@@ -144,7 +146,7 @@ SelectList.prototype.focusOnSelect = function( select )
  */
 SelectList.prototype.handleKey = function( type, keyCode, event )
 {
-    var handled = this._selects[ this._currentFocus ].handleKey( type, keyCode, event );
+    let handled = this._selects[ this._currentFocus ].handleKey( type, keyCode, event );
 
     if ( type === "down" )
     {

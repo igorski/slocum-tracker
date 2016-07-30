@@ -20,7 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var TIA = module.exports =
+"use strict";
+
+const TIA = module.exports =
 {
     /**
      * code table that shows all possible frequencies that
@@ -282,13 +284,13 @@ var TIA = module.exports =
      *
      * @return {string|null}
      */
-    getCode : function( tuning, sound, note, octave )
+    getCode( tuning, sound, note, octave )
     {
-        var soundDescription = tuning[ sound ];
+        let soundDescription = tuning[ sound ];
 
         if ( soundDescription )
         {
-            var i = soundDescription.length, noteDescription;
+            let i = soundDescription.length, noteDescription;
             while ( i-- )
             {
                 noteDescription = soundDescription[ i ];
@@ -307,10 +309,10 @@ var TIA = module.exports =
      * @param {string} sound
      * @return {string|null}
      */
-    getPercussionCode : function( sound )
+    getPercussionCode( sound )
     {
-        var soundDescription = TIA.table.PERCUSSION;
-        var i = soundDescription.length, noteDescription;
+        let soundDescription = TIA.table.PERCUSSION;
+        let i = soundDescription.length, noteDescription;
 
         while ( i-- )
         {

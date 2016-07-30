@@ -20,6 +20,8 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+"use strict";
+
 module.exports =
 {
     /**
@@ -29,7 +31,7 @@ module.exports =
      * @param {Element} aSelect
      * @return {string}
      */
-    getSelectedOption : function( aSelect )
+    getSelectedOption( aSelect )
     {
         if ( aSelect.options && aSelect.options.length > 0 )
             return aSelect.options[ aSelect.selectedIndex ].value;
@@ -44,14 +46,14 @@ module.exports =
      * @param {Element} aSelect
      * @param {string|number|boolean} aValue
      */
-    setSelectedOption : function( aSelect, aValue )
+    setSelectedOption( aSelect, aValue )
     {
-        var options = aSelect.options;
+        let options = aSelect.options;
 
         if ( !options )
             return;
 
-        var i = options.length, option;
+        let i = options.length, option;
 
         aValue = aValue.toString();
 
@@ -78,16 +80,16 @@ module.exports =
      *            value: *
      *        }>} aOptions
      */
-    setOptions : function( aSelect, aOptions )
+    setOptions( aSelect, aOptions )
     {
-        var children = aSelect.childNodes;
-        var i = children.length;
+        let children = aSelect.childNodes;
+        let i = children.length;
 
         while ( i-- ) {
             aSelect.removeChild( aSelect.childNodes[ i ]);
         }
 
-        var element;
+        let element;
 
         aOptions.forEach( function( option )
         {

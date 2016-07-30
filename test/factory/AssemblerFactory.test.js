@@ -9,7 +9,7 @@ var TIA              = require( "../../src/js/definitions/TIA" );
 var Time             = require( "../../src/js/utils/Time" );
 var ObjectUtil       = require( "../../src/js/utils/ObjectUtil" );
 
-describe( "AssemblerFactory", function()
+describe( "AssemblerFactory", () =>
 {
     /* setup */
 
@@ -21,7 +21,7 @@ describe( "AssemblerFactory", function()
 
     // executed before the tests start running
 
-    before( function()
+    before( () =>
     {
         browser       = new MockBrowser();
         global.window = browser.getWindow();
@@ -31,33 +31,33 @@ describe( "AssemblerFactory", function()
 
     // executed when all tests have finished running
 
-    after( function()
+    after( () =>
     {
 
     });
 
     // executed before each individual test
 
-    beforeEach( function()
+    beforeEach( () =>
     {
         song = model.createSong();
     });
 
     // executed after each individual test
 
-    afterEach( function()
+    afterEach( () =>
     {
 
     });
 
     /* actual unit tests */
 
-    it( "should show the author, title and date in the assembly output", function()
+    it( "should show the author, title and date in the assembly output", () =>
     {
         song.meta.title  = "foo";
         song.meta.author = "bar";
 
-        var asm = textToLineArray( AssemblerFactory.assemblify( song ));
+        var asm = textToLineArray( AssemblerFactory.assemble( song ));
 
         assert.ok( asm[ 1 ].indexOf( song.meta.title ) > -1,
             "expected assembly output to contain song title" );
@@ -69,24 +69,24 @@ describe( "AssemblerFactory", function()
             "expected assembly output to contain song title" );
     });
 
-    it( "should have the correct tempo value in the assembly output", function()
+    it( "should have the correct tempo value in the assembly output", () =>
     {
         song.meta.tempo = rand( 1, 10 );
 
-        var asm = textToLineArray( AssemblerFactory.assemblify( song ));
+        var asm = textToLineArray( AssemblerFactory.assemble( song ));
 
         assert.ok( asm[ 11 ].indexOf( "TEMPODELAY equ " + song.meta.tempo ) > -1,
             "expected assembly output to contain correct tempo value" );
     });
 
-    it( "should translate the hat pattern correctly into the assembly output", function()
+    it( "should translate the hat pattern correctly into the assembly output", () =>
     {
         var pattern = song.hats.pattern;
 
         for ( var i = 0; i < pattern.length; ++i )
             pattern[ i ] = ( randBool() ) ? 1 : 0;
 
-        var asm = textToLineArray( AssemblerFactory.assemblify( song ));
+        var asm = textToLineArray( AssemblerFactory.assemble( song ));
         var lineStart = getLineNumForText( asm, "hatPattern" ) + 1;
         var lineEnd   = lineStart + 4; // 4 lines in total (32 steps divided by 8)
         var pIndex    = 0;
@@ -100,7 +100,7 @@ describe( "AssemblerFactory", function()
         }
     });
 
-    it( "should translate the hat pattern properties correctly into the assembly output", function()
+    it( "should translate the hat pattern properties correctly into the assembly output", () =>
     {
         var hats = song.hats;
 
@@ -109,7 +109,7 @@ describe( "AssemblerFactory", function()
         hats.volume = rand( 0, 15 );
         hats.sound  = rand( 1, 15 );
 
-        var asm = textToLineArray( AssemblerFactory.assemblify( song ));
+        var asm = textToLineArray( AssemblerFactory.assemble( song ));
 
         assert.ok( asm[ getLineNumForText( asm, "HATSTART equ" )].indexOf( hats.start ) > -1,
             "expected hat start offset to have been translated correctly" );
@@ -124,7 +124,7 @@ describe( "AssemblerFactory", function()
             "expected hat sound to have been translated correctly" );
     });
 
-    it( "should declare silent patterns only once to save space", function()
+    it( "should declare silent patterns only once to save space", () =>
     {
         var channel1 = song.patterns[ 0 ].channels[ 0 ];
         var bank     = TIA.table.tunings[ 0 ].BASS;
@@ -143,7 +143,7 @@ describe( "AssemblerFactory", function()
             };
         }
 
-        var asm = textToLineArray( AssemblerFactory.assemblify( song ));
+        var asm = textToLineArray( AssemblerFactory.assemble( song ));
         var patternDef = getLineNumForText( asm, "Higher volume patterns" ) + 3;
 
         assert.ok( asm[ patternDef ].indexOf( "word Pattern1, Pattern2, Pattern2, Pattern2" ) > -1,
@@ -153,7 +153,7 @@ describe( "AssemblerFactory", function()
             "expected four re-used patterns for channel 2" );
     });
 
-    it( "should write patterns into the appropriate volume arrays", function()
+    it( "should write patterns into the appropriate volume arrays", () =>
     {
         var channel1 = song.patterns[ 0 ].channels[ 0 ];
         var channel2 = song.patterns[ 0 ].channels[ 1 ];
@@ -185,20 +185,20 @@ describe( "AssemblerFactory", function()
 
         // assert results
 
-        var asm = textToLineArray( AssemblerFactory.assemblify( song ));
+        var asm = textToLineArray( AssemblerFactory.assemble( song ));
         var patternDef = getLineNumForText( asm, "Higher volume patterns" ) + 3;
 
         assert.ok( asm[ patternDef ].indexOf( "word Pattern1, Pattern2, Pattern2, Pattern2 ; 0" ) > -1,
             "expected channel 1 pattern to be in the higher volume Array starting at index 0" );
 
-        asm = textToLineArray( AssemblerFactory.assemblify( song ));
+        asm = textToLineArray( AssemblerFactory.assemble( song ));
         patternDef = getLineNumForText( asm, "Lower volume patterns" ) + 3;
 
         assert.ok( asm[ patternDef ].indexOf( "word Pattern3, Pattern2, Pattern2, Pattern2 ; 128" ) > -1,
             "expected channel 2 pattern to be in the lower volume Array starting at index 128" );
     });
 
-    it( "should define duplicate subpatterns only once to save space", function()
+    it( "should define duplicate subpatterns only once to save space", () =>
     {
         var channel1 = song.patterns[ 0 ].channels[ 0 ];
         var channel2 = song.patterns[ 0 ].channels[ 1 ];
@@ -223,7 +223,7 @@ describe( "AssemblerFactory", function()
         for ( i = 0, j = 4; i < 4; ++i, ++j )
             channel2[ j ] = ObjectUtil.clone( channel1[ i ]);
 
-        var asm = textToLineArray( AssemblerFactory.assemblify( song ));
+        var asm = textToLineArray( AssemblerFactory.assemble( song ));
         var patternDef = getLineNumForText( asm, "Higher volume patterns" ) + 3;
 
         assert.ok( asm[ patternDef ].indexOf( "word Pattern1, Pattern2, Pattern2, Pattern2" ) > -1,
@@ -244,7 +244,7 @@ describe( "AssemblerFactory", function()
                 accent: randBool()
             };
         }
-        asm = textToLineArray( AssemblerFactory.assemblify( song ));
+        asm = textToLineArray( AssemblerFactory.assemble( song ));
         patternDef = getLineNumForText( asm, "Higher volume patterns" ) + 3;
 
         assert.ok( asm[ patternDef ].indexOf( "word Pattern1, Pattern2, Pattern2, Pattern2" ) > -1,
@@ -254,7 +254,7 @@ describe( "AssemblerFactory", function()
             "expected two re-used silent, one re-used pattern and one unique pattern for channel 2" );
     });
 
-    it( "should duplicate pattern words only once to save space", function()
+    it( "should duplicate pattern words only once to save space", () =>
     {
         var channel1 = song.patterns[ 0 ].channels[ 0 ];
         var channel2 = song.patterns[ 0 ].channels[ 1 ];
@@ -280,7 +280,7 @@ describe( "AssemblerFactory", function()
         for ( i = 0; i < steps; ++i )
             channel2[ i ] = ObjectUtil.clone( channel1[ i ]);
 
-        var asm        = textToLineArray( AssemblerFactory.assemblify( song ));
+        var asm        = textToLineArray( AssemblerFactory.assemble( song ));
         var patternDef = getLineNumForText( asm, "Higher volume patterns" ) + 3;
 
         assert.ok( asm[ patternDef ].indexOf( "word Pattern1, Pattern2, Pattern3, Pattern4" ) > -1,
@@ -300,7 +300,7 @@ describe( "AssemblerFactory", function()
             "expected byte 0 to have been redeclared for song 2" );
     });
 
-    it( "should duplicate pattern words when it doesn't exist for the specified volume pattern", function()
+    it( "should duplicate pattern words when it doesn't exist for the specified volume pattern", () =>
     {
         var channel1 = song.patterns[ 0 ].channels[ 0 ];
         var channel2 = song.patterns[ 0 ].channels[ 1 ];
@@ -330,7 +330,7 @@ describe( "AssemblerFactory", function()
 
         song.patterns[ 0 ].channel2attenuation = true;
 
-        var asm        = textToLineArray( AssemblerFactory.assemblify( song ));
+        var asm        = textToLineArray( AssemblerFactory.assemble( song ));
         var patternDef = getLineNumForText( asm, "Higher volume patterns" ) + 3;
 
         assert.ok( asm[ patternDef ].indexOf( "word Pattern1, Pattern2, Pattern3, Pattern4" ) > -1,
@@ -352,7 +352,7 @@ describe( "AssemblerFactory", function()
             "expected byte 128 to have been declared for song 2" );
     });
 
-    it( "should redeclare a pattern that is a duplicate by notes, but not by accents", function()
+    it( "should redeclare a pattern that is a duplicate by notes, but not by accents", () =>
     {
         var channel1 = song.patterns[ 0 ].channels[ 0 ];
         var channel2 = song.patterns[ 0 ].channels[ 1 ];
@@ -379,7 +379,7 @@ describe( "AssemblerFactory", function()
             channel2[ j ].accent = !channel1[ i ].accent; // flip the accent
         }
 
-        var asm = textToLineArray( AssemblerFactory.assemblify( song ));
+        var asm = textToLineArray( AssemblerFactory.assemble( song ));
         var patternDef = getLineNumForText( asm, "Higher volume patterns" ) + 3;
 
         assert.ok( asm[ patternDef ].indexOf( "word Pattern1, Pattern2, Pattern2, Pattern2" ) > -1,

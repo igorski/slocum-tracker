@@ -20,19 +20,21 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Form         = require( "../utils/Form" );
-var SongUtil     = require( "../utils/SongUtil" );
-var TemplateUtil = require( "../utils/TemplateUtil" );
-var TIA          = require( "../definitions/TIA" );
-var Messages     = require( "../definitions/Messages" );
-var Pubsub       = require( "pubsub-js" );
+"use strict";
+
+const Form         = require( "../utils/Form" );
+const SongUtil     = require( "../utils/SongUtil" );
+const TemplateUtil = require( "../utils/TemplateUtil" );
+const TIA          = require( "../definitions/TIA" );
+const Messages     = require( "../definitions/Messages" );
+const Pubsub       = require( "pubsub-js" );
 
 /* private properties */
 
-var container, slocum, keyboardController;
-var title, author, tempo, tuning;
+let container, slocum, keyboardController;
+let title, author, tempo, tuning;
 
-var MetaController = module.exports =
+const MetaController = module.exports =
 {
     /**
      * initialize MetaController, attach MetaView template into give container
@@ -41,7 +43,7 @@ var MetaController = module.exports =
      * @param slocumRef
      * @param keyboardControllerRef
      */
-    init : function( containerRef, slocumRef, keyboardControllerRef )
+    init( containerRef, slocumRef, keyboardControllerRef )
     {
         container          = containerRef;
         slocum             = slocumRef;
@@ -78,9 +80,9 @@ var MetaController = module.exports =
      * synchronize MetaView contents with
      * the current state of the model
      */
-    update : function()
+    update()
     {
-        var meta = slocum.activeSong.meta;
+        let meta = slocum.activeSong.meta;
 
         title.value  = meta.title;
         author.value = meta.author;
@@ -110,13 +112,13 @@ function handleBroadcast( type, payload )
  */
 function handleChange( aEvent )
 {
-    var meta = slocum.activeSong.meta;
+    let meta = slocum.activeSong.meta;
 
     meta.title  = title.value;
     meta.author = author.value;
     meta.tempo  = parseInt( Form.getSelectedOption( tempo ), 10 );
 
-    var newTuning = parseInt( Form.getSelectedOption( tuning ), 10 );
+    let newTuning = parseInt( Form.getSelectedOption( tuning ), 10 );
 
     if ( meta.tuning !== newTuning )
     {

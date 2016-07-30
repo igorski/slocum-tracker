@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+"use strict";
 
 /**
  * type definition for a single pattern step
@@ -31,7 +32,7 @@
  *              accent: boolean
  *          }}
  */
-var PATTERN_STEP;
+let PATTERN_STEP;
 
 /**
  * type definition for a pattern list
@@ -41,9 +42,9 @@ var PATTERN_STEP;
  *              channels: Array.<Array.<PATTERN_STEP>>
  *          }}
  */
-var PATTERN;
+let PATTERN;
 
-var PatternFactory = module.exports =
+const PatternFactory = module.exports =
 {
     /**
      * @public
@@ -52,7 +53,7 @@ var PatternFactory = module.exports =
      *
      * @return {PATTERN}
      */
-    createEmptyPattern : function( amountOfSteps )
+    createEmptyPattern( amountOfSteps )
     {
         amountOfSteps = ( typeof amountOfSteps === "number" ) ? amountOfSteps : 16;
 
@@ -74,15 +75,15 @@ var PatternFactory = module.exports =
      * @param {PATTERN} targetPattern
      * @param {PATTERN} sourcePattern
      */
-    mergePatterns : function( targetPattern, sourcePattern )
+    mergePatterns( targetPattern, sourcePattern )
     {
-        var targetLength = targetPattern.steps;
-        var sourceLength = sourcePattern.steps;
-        var sourceChannel, i, j;
+        let targetLength = targetPattern.steps;
+        let sourceLength = sourcePattern.steps;
+        let sourceChannel, i, j;
 
         // equalize the pattern lengths
 
-        var replacement, increment;
+        let replacement, increment;
 
         if ( sourceLength > targetLength )
         {
@@ -119,7 +120,7 @@ var PatternFactory = module.exports =
             sourceLength = sourcePattern.steps = targetLength;
         }
 
-        var sourceStep;
+        let sourceStep;
 
         targetPattern.channels.forEach( function( targetChannel, index )
         {
@@ -142,7 +143,7 @@ var PatternFactory = module.exports =
      * @public
      * @return {Object}
      */
-    generateEmptyPatternStep : function()
+    generateEmptyPatternStep()
     {
         return {
             sound: 0,
@@ -161,9 +162,9 @@ var PatternFactory = module.exports =
      * @param {number} channelNum
      * @param {number} step
      */
-    clearStep : function( pattern, channelNum, step )
+    clearStep( pattern, channelNum, step )
     {
-        var channel     = pattern.channels[ channelNum ];
+        let channel     = pattern.channels[ channelNum ];
         channel[ step ] = PatternFactory.generateEmptyPatternStep();
     }
 };
@@ -172,8 +173,8 @@ var PatternFactory = module.exports =
 
 function generateEmptyChannelPatterns( amountOfSteps )
 {
-    var out = [ new Array( amountOfSteps ), new Array( amountOfSteps ) ];
-    var i;
+    let out = [ new Array( amountOfSteps ), new Array( amountOfSteps ) ];
+    let i;
 
     out.forEach( function( channel )
     {

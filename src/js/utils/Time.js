@@ -20,6 +20,8 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+"use strict";
+
 module.exports =
 {
     /**
@@ -29,16 +31,16 @@ module.exports =
      * @param {number} aTimestamp
      * @return {string}
      */
-    timestampToDate : function( aTimestamp )
+    timestampToDate( aTimestamp )
     {
-        var a      = new Date( aTimestamp );
-        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-        var year   = a.getFullYear();
-        var month  = months[a.getMonth()];
-        var date   = a.getDate();
-        var hour   = a.getHours();
-        var min    = a.getMinutes();
-        var sec    = a.getSeconds();
+        let a      = new Date( aTimestamp );
+        let months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        let year   = a.getFullYear();
+        let month  = months[a.getMonth()];
+        let date   = a.getDate();
+        let hour   = a.getHours();
+        let min    = a.getMinutes();
+        let sec    = a.getSeconds();
 
         return date + ' ' + month + ' ' + year + ' ' + prependZero( hour ) + ':' + prependZero( min ) + ':' + prependZero( sec );
     }

@@ -20,6 +20,8 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+"use strict";
+
 module.exports =
 {
     /**
@@ -32,12 +34,12 @@ module.exports =
      *             octave: number
      *         }>}
      */
-    createPattern : function()
+    createPattern()
     {
-        var steps = 16;
-        var out   = [];
+        let steps = 16;
+        let out   = [];
 
-        for ( var i = 0; i < steps; ++i )
+        for ( let i = 0; i < steps; ++i )
         {
             out.push({
                // sound

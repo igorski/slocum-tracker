@@ -20,17 +20,19 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Pubsub   = require( "pubsub-js" );
-var Messages = require( "../definitions/Messages" );
+"use strict";
+
+const Pubsub   = require( "pubsub-js" );
+const Messages = require( "../definitions/Messages" );
 
 /* variables */
 
-var header, menu, toggle;
-var menuOpened = false; // whether menu is opened (mobile hamburger menu)
+let header, menu, toggle;
+let menuOpened = false; // whether menu is opened (mobile hamburger menu)
 
 module.exports =
 {
-    init : function()
+    init()
     {
         menu   = document.getElementById( "menu" );
         header = document.getElementById( "header" );
