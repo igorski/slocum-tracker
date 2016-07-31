@@ -32,8 +32,8 @@ const TextFileUtil   = require( "../utils/TextFileUtil" );
 const TIA            = require( "../definitions/TIA" );
 const MD5            = require( "md5" );
 
-const DECLARATION_WORD = "    word",
-      DECLARATION_BYTE = "    byte";
+const DECLARATION_WORD = "    word ",
+      DECLARATION_BYTE = "    byte ";
 
 module.exports =
 {
@@ -99,8 +99,9 @@ module.exports =
 
                 line = list[ l ];
 
-                if ( line.indexOf( DECLARATION_BYTE + " %" ) > -1 ) {
-                    const pattern = line.replace( DECLARATION_BYTE +" %", "" );
+                if ( line.indexOf( DECLARATION_BYTE + "%" ) > -1 ) {
+                    const pattern = line.replace( DECLARATION_BYTE + "%", "" );
+
                     for ( let li = 0; li < 8; ++li )
                         out.hats.pattern[( i * 8 ) + li ] = parseInt( pattern.charAt( li ), 10 );
                 }
@@ -187,7 +188,7 @@ function convertPatterns( patterns, tuning )
                 // at beginning of each quarter measure, prepare accents list
 
                 if ( idx % 8 === 0 )
-                    accents = "\n" + DECLARATION_BYTE + " %";
+                    accents = "\n" + DECLARATION_BYTE + "%";
 
                 // every two 32nd notes, prefix output with byte declaration
 
@@ -290,7 +291,7 @@ function convertHatPattern( pattern )
             if ( i > 0 )
                 asmPattern += "\n";
 
-            asmPattern += DECLARATION_BYTE + " %";
+            asmPattern += ( DECLARATION_BYTE + "%" );
         }
         asmPattern += pattern[ i ];
     }
@@ -308,32 +309,35 @@ function getPreviousPatternDeclaration( patternArray, patternString )
     return -1;
 }
 
-function collectEventsForPattern( list, patterns, patternNum, patternH, patternL, channelPatternStartIndex ) {
+function collectEventsForPattern( list, patterns, channelNum, patternH, patternL, channelPatternStartIndex ) {
 
-    let line;
+    let patternIndex = 0, line;
 
-    for ( let i = 0, l = channelPatternStartIndex; l < ( channelPatternStartIndex + 255 ); ++i, ++l ) {
+    for ( let l = channelPatternStartIndex; l < ( channelPatternStartIndex + 255 ); ++l ) {
 
         line = list[ l ];
 
         if ( line.indexOf( DECLARATION_BYTE ) === -1 )
             continue;
 
-        let byte = parseInt( line.replace( DECLARATION_BYTE, "" ), 10 );
+        const byte = parseInt( line.replace( DECLARATION_BYTE, "" ), 10 );
 
         // reached end of channels patterns
         if ( byte === 255 )
             break;
 
-        if ( i > ( patterns.length - 1 ))
+        if ( patternIndex > ( patterns.length - 1 ))
             patterns.push( PatternFactory.createEmptyPattern( 32 ));
 
-        const pattern    = patterns[ i ];
-        const channel    = pattern.channels[ patternNum ];
+        const pattern    = patterns[ patternIndex ];
+        const channel    = pattern.channels[ channelNum ];
         pattern.steps    = 32;
+
+        ++patternIndex;
+
         const attenuated = ( byte >= 128 );
 
-        if ( patternNum === 0 )
+        if ( channelNum === 0 )
             pattern.channel1attenuation = attenuated;
         else
             pattern.channel2attenuation = attenuated;
@@ -349,8 +353,7 @@ function collectEventsForPattern( list, patterns, patternNum, patternH, patternL
 
             for ( let pi = 0, pl = patternEvents; pl < list.length; ++pi, ++pl ) {
 
-                let patternLine = list[ pl ];
-                const patternStartNoteIndex = patternNoteIndex;
+                const patternLine = list[ pl ];
 
                 if ( patternLine.indexOf( DECLARATION_BYTE ) === -1 )
                     continue;
@@ -360,18 +363,24 @@ function collectEventsForPattern( list, patterns, patternNum, patternH, patternL
                 if ( notes.length === 1 ) {
                     // is accent list
                     const accents = notes[0].replace( "%", "" ).trim();
-                    for ( let ai = 0; ai < 8; ++ai ) {
-                        event = channel[ patternStartNoteIndex + ai ];
-                        if ( event )
-                            event.accent = accents[ ai ] === "1";
+
+                    if ( accents.length === 8 ) {
+                        const patternStartNoteIndex = patternNoteIndex - 8;
+                        for ( let ai = 0; ai < 8; ++ai ) {
+                            event = channel[ patternStartNoteIndex + ai ];
+                            if ( event )
+                                event.accent = ( accents.charAt( ai ) === "1" );
+                        }
                     }
                     break;
                 }
                 notes.forEach(( unsanitizedNote, noteIndex ) => {
-                    const note = unsanitizedNote.trim();
+                    let note = unsanitizedNote.trim();
                     if ( note !== "255" ) {
-                        event = TIA.getSoundByCode( note );
-                        channel[ patternNoteIndex ] = event;
+                        const matches = note.match( /(%[0-1])\w+/ );
+                        note = ( matches ) ? matches[0] : note;
+                        if ( event = TIA.getSoundByCode( note ))
+                            channel[ patternNoteIndex ] = event;
                     }
                     ++patternNoteIndex;
                 });
@@ -387,10 +396,10 @@ function sanitizePatternPrecision( patterns ) {
         let has32ndNotes = false;
         let note;
 
-        pattern.channels.forEach(( channel, channelIndex ) => {
+        pattern.channels.forEach(( channelPattern, channelIndex ) => {
 
-            for ( let i = 1; i < channel.length; i += 2 ) {
-                note = channel[ i ];
+            for ( let i = 1; i < channelPattern.length; i += 2 ) {
+                note = channelPattern[ i ];
 
                 if ( typeof note.sound === "string")
                     has32ndNotes = true;
@@ -400,12 +409,12 @@ function sanitizePatternPrecision( patterns ) {
 
         if ( !has32ndNotes ) {
 
-            pattern.channels.forEach(( channel, channelIndex ) => {
+            pattern.channels.forEach(( channelPattern, channelIndex ) => {
 
                 const notes = [];
 
-                for ( let i = 0; i < channel.length; i += 2 ) {
-                    notes.push( channel[ i ]);
+                for ( let i = 0; i < channelPattern.length; i += 2 ) {
+                    notes.push( channelPattern[ i ]);
                 }
                 pattern.channels[ channelIndex ] = notes;
             });

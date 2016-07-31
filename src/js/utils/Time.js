@@ -42,8 +42,10 @@ module.exports =
         const hour   = a.getHours();
         const min    = a.getMinutes();
         const sec    = a.getSeconds();
+        const ms     = a.getMilliseconds();
 
-        return date + ' ' + month + ' ' + year + ' ' + prependZero( hour ) + ':' + prependZero( min ) + ':' + prependZero( sec );
+        return date + ' ' + month + ' ' + year + ' ' +
+               prependZero( hour ) + ':' + prependZero( min ) + ':' + prependZero( sec ) + "." + ms;
     }
 };
 

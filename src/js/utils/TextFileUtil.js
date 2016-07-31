@@ -26,12 +26,18 @@ module.exports = {
 
     /**
      * convert a multi line text into an Array of single lines
+     * note tabs are also replaced with four spaces for consistency
      *
      * @param {string} text
      * @returns {Array.<string>}
      */
     textToLineArray( text ){
-        return text.replace( /\r\n|\n\r|\n|\r/g,"\n" ).split( "\n" );
+        const arr = text.replace( /\r\n|\n\r|\n|\r/g,"\n" ).split( "\n" );
+
+        arr.forEach( function( line, index ) {
+           arr[ index ] = line.replace( "\t", "    " );
+        });
+        return arr;
     },
 
     /**
@@ -77,7 +83,7 @@ module.exports = {
             if ( mustEqual === true && line === textToFind )
                 return i;
 
-            if ( line.indexOf( textToFind ) > -1 )
+            else if ( !mustEqual && line.indexOf( textToFind ) > -1 )
                 return i;
         }
         return -1;

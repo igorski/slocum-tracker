@@ -17,8 +17,8 @@ describe( "AssemblerFactory", () =>
     /* setup */
 
     // use Chai assertion library
-    let assert = chai.assert,
-        expect = chai.expect;
+    const assert = chai.assert,
+          expect = chai.expect;
 
     let song, model, browser;
 
@@ -390,6 +390,39 @@ describe( "AssemblerFactory", () =>
 
         assert.ok( asm[ patternDef + 1 ].indexOf( "word Pattern2, Pattern3, Pattern2, Pattern2" ) > -1,
             "expected two re-used silent, one re-used pattern and one unique pattern (different by accents) for channel 2" );
+    });
+
+    it( "should be able to disassemble a header file back into a Slocum Tracker song", () => {
+
+        song.meta.title    = "foo";
+        song.meta.author   = "bar";
+        song.meta.created  = Date.now();
+        song.meta.modified = Date.now();
+
+        song.hats.start   = 16;
+        song.hats.volume  = 3;
+        song.hats.pitch   = 7;
+        song.hats.sound   = 12;
+        song.hats.steps   = randBool() ? 32 : 16;
+        song.hats.pattern = [
+            1, 0, 1, 0, 0, 0, 0, 0,
+            0, 1, 0, 0, 0, 0, 1, 0,
+            0, 1, 0, 0, 0, 1, 0, 0,
+            0, 0, 1, 1, 1, 0, 0, 0
+        ];
+
+        const exportedFile = SongAssemblyService.assemble( song );
+        const importedFile = SongAssemblyService.disassemble( exportedFile );
+
+        assert.ok( typeof importedFile === "object",
+            "expected imported file to be converted from String to an Object" );
+
+        // align properties that could not be restored through assembly process
+        importedFile.id            = song.id;
+        importedFile.meta.modified = song.meta.modified; // this can be a few ms off ;)
+
+        assert.deepEqual( song, importedFile,
+            "expected imported file to equal the source Song properties" );
     });
 });
 
