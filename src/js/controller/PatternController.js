@@ -30,6 +30,7 @@ const PatternFactory = require( "../factory/PatternFactory" );
 const Form           = require( "../utils/Form" );
 const NoteUtil       = require( "../utils/NoteUtil" );
 const ObjectUtil     = require( "../utils/ObjectUtil" );
+const PatternUtil    = require( "../utils/PatternUtil" );
 const TemplateUtil   = require( "../utils/TemplateUtil" );
 
 /* private properties */
@@ -554,36 +555,19 @@ function handlePatternNavNext( aEvent )
 
 function handlePatternStepChange( aEvent )
 {
-    let song    = slocum.activeSong,
-        pattern = song.patterns[ activePattern ];
+    const song    = slocum.activeSong,
+          pattern = song.patterns[ activePattern ];
 
-    let oldAmount = pattern.steps;
-    let newAmount = parseInt( Form.getSelectedOption( stepSelection ), 10 );
+    const oldAmount = pattern.steps;
+    const newAmount = parseInt( Form.getSelectedOption( stepSelection ), 10 );
 
     // update model values
-    pattern.steps = newAmount;
 
-    pattern.channels.forEach( function( channel, index )
-    {
-        let transformed = new Array( newAmount), i, j, increment;
+    if ( newAmount > oldAmount )
+        PatternUtil.expand( pattern );
 
-        if ( newAmount < oldAmount )
-        {
-            // changing from 32 to 16 steps
-            increment = oldAmount / newAmount;
-
-            for ( i = 0, j = 0; i < newAmount; ++i, j += increment )
-                transformed[ i ] = channel[ j ];
-       }
-        else {
-            // changing from 16 to 32 steps
-            increment = newAmount / oldAmount;
-
-            for ( i = 0, j = 0; i < oldAmount; ++i, j += increment )
-                transformed[ j ] = channel[ i ];
-        }
-        pattern.channels[ index ] = transformed;
-    });
+    else if ( newAmount < oldAmount )
+        PatternUtil.shrink( pattern );
 
     PatternController.update(); // sync with model
 }

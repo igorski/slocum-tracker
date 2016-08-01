@@ -5,12 +5,14 @@
 
 const chai                = require( "chai" );
 const MockBrowser         = require( "mock-browser" ).mocks.MockBrowser;
+const SongHelper          = require( "../helpers/SongHelper" );
 const SongAssemblyService = require( "../../src/js/services/SongAssemblyService" );
 const SongModel           = require( "../../src/js/model/SongModel" );
 const TIA                 = require( "../../src/js/definitions/TIA" );
 const Time                = require( "../../src/js/utils/Time" );
 const ObjectUtil          = require( "../../src/js/utils/ObjectUtil" );
 const TextFileUtil        = require( "../../src/js/utils/TextFileUtil" );
+const Rand                = require( "../helpers/Rand" );
 
 describe( "AssemblerFactory", () =>
 {
@@ -60,7 +62,7 @@ describe( "AssemblerFactory", () =>
         song.meta.title  = "foo";
         song.meta.author = "bar";
 
-        let asm = TextFileUtil.textToLineArray( SongAssemblyService.assemble( song ));
+        const asm = TextFileUtil.textToLineArray( SongAssemblyService.assemble( song ));
 
         assert.ok( asm[ 1 ].indexOf( song.meta.title ) > -1,
             "expected assembly output to contain song title" );
@@ -74,11 +76,14 @@ describe( "AssemblerFactory", () =>
 
     it( "should have the correct tempo value in the assembly output", () =>
     {
-        song.meta.tempo = rand( 1, 10 );
+        song.meta.tempo = Rand.randomNumber( 1, 10 );
 
-        let asm = TextFileUtil.textToLineArray( SongAssemblyService.assemble( song ));
+        const asm = TextFileUtil.textToLineArray( SongAssemblyService.assemble( song ));
 
-        assert.ok( asm[ 11 ].indexOf( "TEMPODELAY equ " + song.meta.tempo ) > -1,
+        const TEMPO_KEY = "TEMPODELAY equ ";
+        const lineNum = TextFileUtil.getLineNumForText( asm, TEMPO_KEY );
+        
+        assert.ok( asm[ lineNum ].indexOf( TEMPO_KEY + song.meta.tempo ) > -1,
             "expected assembly output to contain correct tempo value" );
     });
 
@@ -87,9 +92,9 @@ describe( "AssemblerFactory", () =>
         let pattern = song.hats.pattern;
 
         for ( let i = 0; i < pattern.length; ++i )
-            pattern[ i ] = ( randBool() ) ? 1 : 0;
+            pattern[ i ] = ( Rand.randBool() ) ? 1 : 0;
 
-        let asm = TextFileUtil.textToLineArray( SongAssemblyService.assemble( song ));
+        const asm = TextFileUtil.textToLineArray( SongAssemblyService.assemble( song ));
         let lineStart = TextFileUtil.getLineNumForText( asm, "hatPattern" ) + 1;
         let lineEnd   = lineStart + 4; // 4 lines in total (32 steps divided by 8)
         let pIndex    = 0;
@@ -107,12 +112,12 @@ describe( "AssemblerFactory", () =>
     {
         let hats = song.hats;
 
-        hats.start  = rand( 0, 255 );
-        hats.pitch  = rand( 0, 31 );
-        hats.volume = rand( 0, 15 );
-        hats.sound  = rand( 1, 15 );
+        hats.start  = Rand.randomNumber( 0, 255 );
+        hats.pitch  = Rand.randomNumber( 0, 31 );
+        hats.volume = Rand.randomNumber( 0, 15 );
+        hats.sound  = Rand.randomNumber( 1, 15 );
 
-        let asm = TextFileUtil.textToLineArray( SongAssemblyService.assemble( song ));
+        const asm = TextFileUtil.textToLineArray( SongAssemblyService.assemble( song ));
 
         assert.ok( asm[ TextFileUtil.getLineNumForText( asm, "HATSTART equ" )].indexOf( hats.start ) > -1,
             "expected hat start offset to have been translated correctly" );
@@ -137,16 +142,16 @@ describe( "AssemblerFactory", () =>
 
         for ( i = 0, l = song.patterns[0].steps / 4; i < l; ++i )
         {
-            def = bank[ rand( 0, bank.length - 1 )];
+            def = bank[ Rand.randomNumber( 0, bank.length - 1 )];
             channel1[ i ] = {
                 sound: "BASS",
                 note: def.note,
                 octave: def.octave,
-                accent: randBool()
+                accent: Rand.randBool()
             };
         }
 
-        let asm = TextFileUtil.textToLineArray( SongAssemblyService.assemble( song ));
+        const asm = TextFileUtil.textToLineArray( SongAssemblyService.assemble( song ));
         let patternDef = TextFileUtil.getLineNumForText( asm, "Higher volume patterns" ) + 3;
 
         assert.ok( asm[ patternDef ].indexOf( "word Pattern1, Pattern2, Pattern2, Pattern2" ) > -1,
@@ -171,12 +176,12 @@ describe( "AssemblerFactory", () =>
         {
             for ( j = 0, l = song.patterns[ 0 ].steps / 4; j < l; ++j )
             {
-                def = bank[ rand( 0, bank.length - 1 )];
+                def = bank[ Rand.randomNumber( 0, bank.length - 1 )];
                 out = {
                     sound: "BASS",
                     note: def.note,
                     octave: def.octave,
-                    accent: randBool()
+                    accent: Rand.randBool()
                 };
 
                 if ( i === 0 )
@@ -212,12 +217,12 @@ describe( "AssemblerFactory", () =>
 
         for ( i = 0, l = song.patterns[0].steps / 4; i < l; ++i )
         {
-            def = bank[ rand( 0, bank.length - 1 )];
+            def = bank[ Rand.randomNumber( 0, bank.length - 1 )];
             channel1[ i ] = {
                 sound: "BASS",
                 note: def.note,
                 octave: def.octave,
-                accent: randBool()
+                accent: Rand.randBool()
             };
         }
 
@@ -239,12 +244,12 @@ describe( "AssemblerFactory", () =>
 
         for ( i = 12, l = 16; i < l; ++i )
         {
-            def = bank[ rand( 0, bank.length - 1 )];
+            def = bank[ Rand.randomNumber( 0, bank.length - 1 )];
             channel2[ i ] = {
                 sound: "BASS",
                 note: def.note,
                 octave: def.octave,
-                accent: randBool()
+                accent: Rand.randBool()
             };
         }
         asm = TextFileUtil.textToLineArray( SongAssemblyService.assemble( song ));
@@ -263,18 +268,18 @@ describe( "AssemblerFactory", () =>
         let channel2 = song.patterns[ 0 ].channels[ 1 ];
         let steps    = song.patterns[ 0 ].steps;
         let bank     = TIA.table.tunings[ 0 ].BASS;
-        let i, j, l, def;
+        let i, l, def;
 
         // add some random notes for the first measure of the first channels bar
 
         for ( i = 0, l = steps; i < l; ++i )
         {
-            def = bank[ rand( 0, bank.length - 1 )];
+            def = bank[ Rand.randomNumber( 0, bank.length - 1 )];
             channel1[ i ] = {
                 sound: "BASS",
                 note: def.note,
                 octave: def.octave,
-                accent: randBool()
+                accent: Rand.randBool()
             };
         }
 
@@ -283,8 +288,8 @@ describe( "AssemblerFactory", () =>
         for ( i = 0; i < steps; ++i )
             channel2[ i ] = ObjectUtil.clone( channel1[ i ]);
 
-        let asm        = TextFileUtil.textToLineArray( SongAssemblyService.assemble( song ));
-        let patternDef = TextFileUtil.getLineNumForText( asm, "Higher volume patterns" ) + 3;
+        const asm        = TextFileUtil.textToLineArray( SongAssemblyService.assemble( song ));
+        const patternDef = TextFileUtil.getLineNumForText( asm, "Higher volume patterns" ) + 3;
 
         assert.ok( asm[ patternDef ].indexOf( "word Pattern1, Pattern2, Pattern3, Pattern4" ) > -1,
              "expected pattern declaration to match expectation" );
@@ -292,12 +297,12 @@ describe( "AssemblerFactory", () =>
         assert.ok( asm[ patternDef + 1 ].length === 0,
              "expected only one pattern to have been declared as duplicates should be omitted" );
 
-        let songDef = TextFileUtil.getLineNumForText( asm, "song1" ) + 1;
+        let songDef = TextFileUtil.getLastLineNumForText( asm, "song1", true ) + 1;
 
         assert.ok( asm[ songDef ].indexOf( "byte 0" ) > -1,
             "expected byte 0 to have been declared for song 1" );
 
-        songDef = TextFileUtil.getLineNumForText( asm, "song2" ) + 1;
+        songDef = TextFileUtil.getLastLineNumForText( asm, "song2", true ) + 1;
 
         assert.ok( asm[ songDef ].indexOf( "byte 0" ) > -1,
             "expected byte 0 to have been redeclared for song 2" );
@@ -315,12 +320,12 @@ describe( "AssemblerFactory", () =>
 
         for ( i = 0, l = steps; i < l; ++i )
         {
-            def = bank[ rand( 0, bank.length - 1 )];
+            def = bank[ Rand.randomNumber( 0, bank.length - 1 )];
             channel1[ i ] = {
                 sound: "BASS",
                 note: def.note,
                 octave: def.octave,
-                accent: randBool()
+                accent: Rand.randBool()
             };
         }
 
@@ -333,7 +338,7 @@ describe( "AssemblerFactory", () =>
 
         song.patterns[ 0 ].channel2attenuation = true;
 
-        let asm        = TextFileUtil.textToLineArray( SongAssemblyService.assemble( song ));
+        const asm      = TextFileUtil.textToLineArray( SongAssemblyService.assemble( song ));
         let patternDef = TextFileUtil.getLineNumForText( asm, "Higher volume patterns" ) + 3;
 
         assert.ok( asm[ patternDef ].indexOf( "word Pattern1, Pattern2, Pattern3, Pattern4" ) > -1,
@@ -344,12 +349,12 @@ describe( "AssemblerFactory", () =>
         assert.ok( asm[ patternDef ].indexOf( "word Pattern1, Pattern2, Pattern3, Pattern4" ) > -1,
              "expected pattern to have been redeclared as it didn't exist in the lower volume Array yet" );
 
-        let songDef = TextFileUtil.getLineNumForText( asm, "song1" ) + 1;
+        let songDef = TextFileUtil.getLastLineNumForText( asm, "song1", true ) + 1;
 
         assert.ok( asm[ songDef ].indexOf( "byte 0" ) > -1,
             "expected byte 0 to have been declared for song 1" );
 
-        songDef = TextFileUtil.getLineNumForText( asm, "song2" ) + 1;
+        songDef = TextFileUtil.getLastLineNumForText( asm, "song2", true ) + 1;
 
         assert.ok( asm[ songDef ].indexOf( "byte 128" ) > -1,
             "expected byte 128 to have been declared for song 2" );
@@ -357,21 +362,21 @@ describe( "AssemblerFactory", () =>
 
     it( "should redeclare a pattern that is a duplicate by notes, but not by accents", () =>
     {
-        let channel1 = song.patterns[ 0 ].channels[ 0 ];
-        let channel2 = song.patterns[ 0 ].channels[ 1 ];
-        let bank     = TIA.table.tunings[ 0 ].BASS;
+        const channel1 = song.patterns[ 0 ].channels[ 0 ];
+        const channel2 = song.patterns[ 0 ].channels[ 1 ];
+        const bank     = TIA.table.tunings[ 0 ].BASS;
         let i, j, l, def;
 
         // add some random notes for the first quaver of the first channels bar
 
         for ( i = 0, l = song.patterns[0].steps / 4; i < l; ++i )
         {
-          def = bank[ rand( 0, bank.length - 1 )];
+          def = bank[ Rand.randomNumber( 0, bank.length - 1 )];
           channel1[ i ] = {
               sound: "BASS",
               note: def.note,
               octave: def.octave,
-              accent: randBool()
+              accent: Rand.randBool()
           };
         }
 
@@ -382,7 +387,7 @@ describe( "AssemblerFactory", () =>
             channel2[ j ].accent = !channel1[ i ].accent; // flip the accent
         }
 
-        let asm = TextFileUtil.textToLineArray( SongAssemblyService.assemble( song ));
+        const asm = TextFileUtil.textToLineArray( SongAssemblyService.assemble( song ));
         let patternDef = TextFileUtil.getLineNumForText( asm, "Higher volume patterns" ) + 3;
 
         assert.ok( asm[ patternDef ].indexOf( "word Pattern1, Pattern2, Pattern2, Pattern2" ) > -1,
@@ -394,22 +399,7 @@ describe( "AssemblerFactory", () =>
 
     it( "should be able to disassemble a header file back into a Slocum Tracker song", () => {
 
-        song.meta.title    = "foo";
-        song.meta.author   = "bar";
-        song.meta.created  = Date.now();
-        song.meta.modified = Date.now();
-
-        song.hats.start   = 16;
-        song.hats.volume  = 3;
-        song.hats.pitch   = 7;
-        song.hats.sound   = 12;
-        song.hats.steps   = randBool() ? 32 : 16;
-        song.hats.pattern = [
-            1, 0, 1, 0, 0, 0, 0, 0,
-            0, 1, 0, 0, 0, 0, 1, 0,
-            0, 1, 0, 0, 0, 1, 0, 0,
-            0, 0, 1, 1, 1, 0, 0, 0
-        ];
+        const song = SongHelper.createRandomSong();
 
         const exportedFile = SongAssemblyService.assemble( song );
         const importedFile = SongAssemblyService.disassemble( exportedFile );
@@ -425,13 +415,3 @@ describe( "AssemblerFactory", () =>
             "expected imported file to equal the source Song properties" );
     });
 });
-
-/* helper functions */
-
-function randBool() {
-    return Math.random() > .5;
-}
-
-function rand( min, max ) {
-    return Math.round( Math.random() * max ) + min;
-}

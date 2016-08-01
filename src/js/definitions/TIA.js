@@ -27,7 +27,7 @@ const TIA = module.exports =
     /**
      * code table that shows all possible frequencies that
      * can be played back over the Atari's TIA, based on the
-     * Eckhard Strolberg's frequency chart
+     * frequency chart by Eckhard Strolberg
      *
      * the comments behind each of the Objects indicate how much cents
      * the pitch is off a perfect note on either an NTSC or PAL setup
@@ -126,8 +126,8 @@ const TIA = module.exports =
 
             {
                 LOW_BASS : [
-                    { note: "b",  octave: 0, code: "%00101010" }, // -11  -22
-                    { note: "g#", octave: 0, code: "%00101100" }  //   0  -13
+                    { note: "b",  octave: 0, code: "%11101010" }, // -11  -22
+                    { note: "g#", octave: 0, code: "%11101100" }  //   0  -13
                 ],
 
                 BASS : [
@@ -328,9 +328,11 @@ const TIA = module.exports =
      *
      * @public
      * @param {string} code
-     * @return {PATTERN_STEP}
+     * @param {number=} tuningNum optional index of tuning to use, when undefined
+     *        this function will loop through all tunings until a matching code has been found
+     * @return {PATTERN_STEP|null}
      */
-    getSoundByCode( code )
+    getSoundByCode( code, tuningNum)
     {
         let description;
 
@@ -344,33 +346,25 @@ const TIA = module.exports =
             };
         }
 
-        // go through the tunings
+        // specific tuning given ? search for note in its list
 
         const tunings = TIA.table.tunings;
-        let i = tunings.length, tuning;
+
+        if ( typeof tuningNum === "number" && tuningNum >= 0 ) {
+            return iterateTuningList( tunings[ tuningNum ], code );
+        }
+
+        // no specific tuning given ? traverse through all available tunings
+
+        let i = tunings.length, out = null;
 
         while ( i-- ) {
 
-            tuning = tunings[ i ];
-            const tuningNotes = Object.keys( tuning );
-            let l = tuningNotes.length;
-            let sound;
-
-            while ( l-- ) {
-
-                sound = tuning[ tuningNotes[ l ]];
-                description = iterateSoundList( sound, code );
-
-                if ( description ){
-                    return {
-                        sound: tuningNotes[ l ],
-                        note: description.note,
-                        octave: description.octave,
-                        accent: false
-                    }
-                }
-            }
+            out = iterateTuningList( tunings[ i ], code );
+            if ( out !== null )
+                return out;
         }
+        return out;
     }
 };
 
@@ -381,6 +375,29 @@ function iterateSoundList( list, code ) {
         entry = list[ i ];
         if ( entry.code === code )
             return entry;
+    }
+    return null;
+}
+
+function iterateTuningList( tuning, code ) {
+
+    const tuningNotes = Object.keys( tuning );
+    let l = tuningNotes.length;
+    let sound, description;
+
+    while ( l-- ) {
+
+       sound = tuning[ tuningNotes[ l ]];
+       description = iterateSoundList( sound, code );
+
+       if ( description ){
+           return {
+               sound: tuningNotes[ l ],
+               note: description.note,
+               octave: description.octave,
+               accent: false
+           }
+       }
     }
     return null;
 }
