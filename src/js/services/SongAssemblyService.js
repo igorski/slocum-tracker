@@ -78,9 +78,12 @@ module.exports =
                 if ( matches )
                     out.meta.title = matches[ matches.length - 1 ];
             }
+            else {
+                out.meta.title = "Untitled";
+            }
 
-            out.meta.author   = TextFileUtil.getValueForKey( list, "; @author " );
-            out.meta.created  = +new Date( TextFileUtil.getValueForKey( list, "; @created " ));
+            out.meta.author   = TextFileUtil.getValueForKey( list, "; @author ", "unknown author" );
+            out.meta.created  = +new Date( TextFileUtil.getValueForKey( list, "; @created ", new Date().toString() ));
             out.meta.modified = Date.now();
             out.meta.tempo    = TextFileUtil.getValueForKey( list, "TEMPODELAY equ ", out.meta.tempo );
             out.meta.tuning   = TextFileUtil.getValueForKey( list, "; @tuning ", 0 );
@@ -127,7 +130,7 @@ module.exports =
             collectEventsForPattern( list, out.patterns, 0, patternH, patternL, song1start, out.meta.tuning );
             collectEventsForPattern( list, out.patterns, 1, patternH, patternL, song2start, out.meta.tuning );
 
-            sanitizePatternPrecision( out.patterns );
+            PatternUtil.sanitizePatternPrecision( out.patterns );
         }
         catch ( e ) {
             console.warn( "error occurred during disassembly", e.message );
@@ -185,8 +188,7 @@ function convertPatterns( patterns, tuning )
                     else
                         code = TIA.getCode( tuning, step.sound, step.note, step.octave );
                 }
-                if ( step )
-                console.log( i + " : translating " + step.sound + " " + step.note + " " + step.octave + " to " + code);
+
                 // at beginning of each quarter measure, prepare accents list
 
                 if ( idx % 8 === 0 )
@@ -320,7 +322,7 @@ function collectEventsForPattern(
 
         line = list[ l ];
 
-        if ( line.indexOf( DECLARATION_BYTE ) === -1 )
+        if ( line.indexOf( DECLARATION_BYTE ) === -1 || line.charAt( 0 ) === ";" )
             continue;
 
         const byte = parseInt( line.replace( DECLARATION_BYTE, "" ), 10 );
@@ -393,13 +395,4 @@ function collectEventsForPattern(
             }
         });
     }
-}
-
-function sanitizePatternPrecision( patterns ) {
-
-    patterns.forEach(( pattern, patternIndex ) => {
-
-        if ( PatternUtil.has32ndNotes( pattern ))
-            PatternUtil.shrink( pattern );
-    });
 }

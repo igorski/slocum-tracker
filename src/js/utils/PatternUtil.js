@@ -22,7 +22,7 @@
  */
 "use strict";
 
-module.exports =
+const PatternUtil = module.exports =
 {
     /**
      * check whether given pattern contains any 32nd notes
@@ -45,7 +45,7 @@ module.exports =
             for ( i = 1; i < channelPattern.length; i += 2 ) {
                 note = channelPattern[ i ];
 
-                if ( typeof note.sound === "string")
+                if ( note && typeof note.sound === "string")
                     has32ndNotes = true;
             }
         });
@@ -54,23 +54,66 @@ module.exports =
 
     /**
      * shrink a 32 step pattern to a 16 step pattern
+     * (keeps content at 16th note slots in place)
      *
      * @param {PATTERN} pattern
      */
     shrink( pattern ) {
 
         if ( pattern.steps !== 32 )
-            throw new Error( "cannot shrink 16 step pattern" );
+            throw new Error( "cannot shrink " + pattern.steps + " step pattern" );
 
         pattern.channels.forEach(( channelPattern, channelIndex ) => {
 
             const notes = [];
 
-            for ( let i = 0; i < channelPattern.length; i += 2 ) {
+            for ( let i = 0; i < channelPattern.length; i += 2 )
                 notes.push( channelPattern[ i ]);
-            }
+
             pattern.channels[ channelIndex ] = notes;
         });
         pattern.steps = 16;
+    },
+
+    /**
+     * expand a 16 step pattern to a 32 step pattern
+     * (translates 16th note content to corresponding 32nd note positions)
+     *
+     * @param {PATTERN} pattern
+     */
+    expand( pattern ) {
+
+        if ( pattern.steps === 32 )
+            throw new Error( "cannot expand " + pattern.steps + " step pattern" );
+
+        pattern.channels.forEach( function( channelPattern, channelIndex )
+        {
+            const notes = new Array( 32 );
+
+            for ( let i = 0, w = 0; i < channelPattern.length; ++i, w += 2 )
+                notes[ w ] = channelPattern[ i ];
+
+            pattern.channels[ channelIndex ] = notes;
+        });
+        pattern.steps = 32;
+    },
+
+    /**
+     * sanitized the steps-property and resolution of
+     * a patterns channel events in case there are
+     * no 32nd notes present
+     *
+     * @param {Array.<PATTERN>} patterns
+     */
+    sanitizePatternPrecision( patterns ) {
+
+        let i = patterns.length;
+        while ( i-- ) {
+
+            const pattern = patterns[ i ];
+
+            if ( pattern.steps === 32 && !PatternUtil.has32ndNotes( pattern ))
+                PatternUtil.shrink( pattern );
+        }
     }
 };

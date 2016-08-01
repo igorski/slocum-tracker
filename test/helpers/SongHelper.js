@@ -24,6 +24,7 @@
 
 const SongModel      = require( "../../src/js/model/SongModel" );
 const PatternFactory = require( "../../src/js/factory/PatternFactory" );
+const PatternUtil    = require( "../../src/js/utils/PatternUtil" );
 const TIA            = require( "../../src/js/definitions/TIA" );
 const Rand           = require( "./Rand" );
 
@@ -75,11 +76,12 @@ const SongHelper = module.exports = {
 
         // generate random note patterns
 
-        // QQQ
-        const patternLength = 1;//Rand.randomNumber( 2, 24 );
+        const patternLength = Rand.randomNumber( 2, 24 );
 
         for ( let p = 0; p < patternLength; ++p )
-            song.patterns[ p ] = SongHelper.createRandomPattern();
+            song.patterns[ p ] = SongHelper.createRandomPattern()
+
+        PatternUtil.sanitizePatternPrecision( song.patterns );
 
         return song;
     },

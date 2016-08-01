@@ -73,4 +73,42 @@ describe( "PatternUtil", () =>
         assert.strictEqual( 16, pattern.channels[ 1 ].length,
             "expected Pattern channel 1 length to have shrunk" );
     });
+
+    it( "should be able to expand a 16 step pattern into a 32 step pattern", () =>
+    {
+        const pattern = SongHelper.createRandomPattern( 16 );
+        PatternUtil.expand( pattern );
+
+        assert.strictEqual( 32, pattern.steps,
+            "expected Pattern step amount to be 32 after expanding" );
+
+        assert.strictEqual( 32, pattern.channels[ 0 ].length,
+            "expected Pattern channel 0 length to have expanded" );
+
+        assert.strictEqual( 32, pattern.channels[ 1 ].length,
+            "expected Pattern channel 1 length to have expanded" );
+    });
+
+    it( "should be able to shrink individual patterns within a list of patterns", () =>
+    {
+        const list = [
+            SongHelper.createRandomPattern( 32 ),
+            SongHelper.createRandomPattern( 16 ),
+            SongHelper.createRandomPattern( 32 )
+        ];
+
+        // expand second pattern to 32 steps (will still hold no 32nd-note content)
+        PatternUtil.expand( list[ 1 ]);
+
+        PatternUtil.sanitizePatternPrecision( list );
+
+        assert.strictEqual( 32, list[ 0 ].steps,
+            "expected first pattern to remain unsanitized at 32 steps" );
+
+        assert.strictEqual( 16, list[ 1 ].steps,
+            "expected second pattern to be sanitized to 16 steps" );
+
+        assert.strictEqual( 32, list[ 2 ].steps,
+            "expected third pattern to remain unsanitized at 32 steps" );
+    });
 });

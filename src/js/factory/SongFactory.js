@@ -56,7 +56,7 @@ module.exports =
                 /**
                  * this type definition states what a pattern Object looks like
                  *
-                 * @typedef {Array.<Object>}
+                 * @typedef {Array.<PATTERN>}
                  */
                 patterns : [
                     PatternFactory.createEmptyPattern( 16 )
