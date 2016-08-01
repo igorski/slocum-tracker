@@ -27,7 +27,7 @@ const TIA = module.exports =
     /**
      * code table that shows all possible frequencies that
      * can be played back over the Atari's TIA, based on the
-     * Eckhard Strolberg's frequency chart
+     * frequency chart by Eckhard Strolberg
      *
      * the comments behind each of the Objects indicate how much cents
      * the pitch is off a perfect note on either an NTSC or PAL setup
@@ -328,9 +328,11 @@ const TIA = module.exports =
      *
      * @public
      * @param {string} code
+     * @param {number=} tuningNum optional index of tuning to use, when undefined
+     *        this function will loop through all tunings until a matching code has been found
      * @return {PATTERN_STEP}
      */
-    getSoundByCode( code )
+    getSoundByCode( code, tuningNum)
     {
         let description;
 
@@ -347,7 +349,8 @@ const TIA = module.exports =
         // go through the tunings
 
         const tunings = TIA.table.tunings;
-        let i = tunings.length, tuning;
+        let i = ( typeof tuningNum === "number" ) ? tuningNum : tunings.length,
+            tuning;
 
         while ( i-- ) {
 

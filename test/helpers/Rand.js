@@ -19,32 +19,40 @@
  * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * helper functions for use in unit tests
  */
 "use strict";
 
-module.exports =
-{
-    /**
-     * create a new, empty pattern
-     *
-     * @public
-     * @return {Array.<{
-     *             sound: number,
-     *             note: string,
-     *             octave: number
-     *         }>}
-     */
-    createPattern()
-    {
-        const steps = 16;
-        const out   = [];
+const Rand = module.exports = {
 
-        for ( let i = 0; i < steps; ++i )
-        {
-            out.push({
-               // sound
-            });
-        }
-        return out;
+    /**
+     * generate a random true-false boolean value
+     *
+     * @return {boolean}
+     */
+    randBool() {
+        return ( Math.random() > .5 );
+    },
+
+    /**
+     * generate a random number in the given range
+     *
+     * @param {number} min minimum value for the range
+     * @param {number} max maximum value for the range
+     * @return {number}
+     */
+    randomNumber( min, max ) {
+        return Math.round( Math.random() * max ) + min;
+    },
+
+    /**
+     * returns a random value from the given Array
+     *
+     * @param {Array} array
+     * @return {*}
+     */
+    randomArrayValue( array ) {
+        return array[ Rand.randomNumber( 0, array.length - 1 )];
     }
 };

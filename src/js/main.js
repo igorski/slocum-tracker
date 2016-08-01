@@ -91,3 +91,11 @@ function handleBroadcast( type, payload )
             break;
     }
 }
+
+const SongHelper = require( "../../test/helpers/SongHelper");
+const SongAssemblyService = require( "./services/SongAssemblyService");
+const song = SongHelper.createRandomSong();
+
+const exportedFile = SongAssemblyService.assemble( song );
+const importedFile = SongAssemblyService.disassemble( exportedFile );
+debugger;

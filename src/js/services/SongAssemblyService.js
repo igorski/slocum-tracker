@@ -28,6 +28,7 @@ const TemplateUtil   = require( "../utils/TemplateUtil" );
 const SongFactory    = require( "../factory/SongFactory" );
 const PatternFactory = require( "../factory/PatternFactory" );
 const NoteUtil       = require( "../utils/NoteUtil" );
+const PatternUtil    = require( "../utils/PatternUtil" );
 const TextFileUtil   = require( "../utils/TextFileUtil" );
 const TIA            = require( "../definitions/TIA" );
 const MD5            = require( "md5" );
@@ -73,7 +74,7 @@ module.exports =
             const title = TextFileUtil.getValueForKey( list, "; @title" );
 
             if ( title ) {
-                const matches = title.match( "\"(.*)\"" );
+                const matches = title.match( /\"(.*)\"/ );
                 if ( matches )
                     out.meta.title = matches[ matches.length - 1 ];
             }
@@ -82,7 +83,7 @@ module.exports =
             out.meta.created  = +new Date( TextFileUtil.getValueForKey( list, "; @created " ));
             out.meta.modified = Date.now();
             out.meta.tempo    = TextFileUtil.getValueForKey( list, "TEMPODELAY equ ", out.meta.tempo );
-            // TODO : tuning
+            out.meta.tuning   = TextFileUtil.getValueForKey( list, "; @tuning ", 0 );
 
             // 2. collect hats
 
@@ -123,8 +124,8 @@ module.exports =
             const song1start = TextFileUtil.getLineNumForText( list, "song1" ) + 1;
             const song2start = TextFileUtil.getLineNumForText( list, "song2" ) + 1;
 
-            collectEventsForPattern( list, out.patterns, 0, patternH, patternL, song1start );
-            collectEventsForPattern( list, out.patterns, 1, patternH, patternL, song2start );
+            collectEventsForPattern( list, out.patterns, 0, patternH, patternL, song1start, out.meta.tuning );
+            collectEventsForPattern( list, out.patterns, 1, patternH, patternL, song2start, out.meta.tuning );
 
             sanitizePatternPrecision( out.patterns );
         }
@@ -184,7 +185,8 @@ function convertPatterns( patterns, tuning )
                     else
                         code = TIA.getCode( tuning, step.sound, step.note, step.octave );
                 }
-
+                if ( step )
+                console.log( i + " : translating " + step.sound + " " + step.note + " " + step.octave + " to " + code);
                 // at beginning of each quarter measure, prepare accents list
 
                 if ( idx % 8 === 0 )
@@ -265,7 +267,7 @@ function convertPatterns( patterns, tuning )
 
     Object.keys( cachedPatterns ).forEach( function( key, index )
     {
-        // replace hashed value with a shorthand (otherwise code won't compile!)
+        // replace hashed value with a shorthand (otherwise code won't compile, go figure!)
 
         replacement = "Pattern" + ( index + 1 );
         value = cachedPatterns[ key ].replace( key, replacement );
@@ -309,7 +311,8 @@ function getPreviousPatternDeclaration( patternArray, patternString )
     return -1;
 }
 
-function collectEventsForPattern( list, patterns, channelNum, patternH, patternL, channelPatternStartIndex ) {
+function collectEventsForPattern(
+    list, patterns, channelNum, patternH, patternL, channelPatternStartIndex, tuning ) {
 
     let patternIndex = 0, line;
 
@@ -329,12 +332,11 @@ function collectEventsForPattern( list, patterns, channelNum, patternH, patternL
         if ( patternIndex > ( patterns.length - 1 ))
             patterns.push( PatternFactory.createEmptyPattern( 32 ));
 
-        const pattern    = patterns[ patternIndex ];
-        const channel    = pattern.channels[ channelNum ];
-        pattern.steps    = 32;
+        const pattern = patterns[ patternIndex ];
+        const channel = pattern.channels[ channelNum ];
+        pattern.steps = 32;
 
         ++patternIndex;
-
         const attenuated = ( byte >= 128 );
 
         if ( channelNum === 0 )
@@ -368,18 +370,22 @@ function collectEventsForPattern( list, patterns, channelNum, patternH, patternL
                         const patternStartNoteIndex = patternNoteIndex - 8;
                         for ( let ai = 0; ai < 8; ++ai ) {
                             event = channel[ patternStartNoteIndex + ai ];
-                            if ( event )
+                            if ( event && event.sound )
                                 event.accent = ( accents.charAt( ai ) === "1" );
                         }
                     }
                     break;
                 }
                 notes.forEach(( unsanitizedNote, noteIndex ) => {
+
                     let note = unsanitizedNote.trim();
+
                     if ( note !== "255" ) {
+
                         const matches = note.match( /(%[0-1])\w+/ );
                         note = ( matches ) ? matches[0] : note;
-                        if ( event = TIA.getSoundByCode( note ))
+
+                        if ( event = TIA.getSoundByCode( note, tuning ))
                             channel[ patternNoteIndex ] = event;
                     }
                     ++patternNoteIndex;
@@ -393,31 +399,7 @@ function sanitizePatternPrecision( patterns ) {
 
     patterns.forEach(( pattern, patternIndex ) => {
 
-        let has32ndNotes = false;
-        let note;
-
-        pattern.channels.forEach(( channelPattern, channelIndex ) => {
-
-            for ( let i = 1; i < channelPattern.length; i += 2 ) {
-                note = channelPattern[ i ];
-
-                if ( typeof note.sound === "string")
-                    has32ndNotes = true;
-            }
-        });
-        pattern.steps = ( has32ndNotes ) ? 32 : 16;
-
-        if ( !has32ndNotes ) {
-
-            pattern.channels.forEach(( channelPattern, channelIndex ) => {
-
-                const notes = [];
-
-                for ( let i = 0; i < channelPattern.length; i += 2 ) {
-                    notes.push( channelPattern[ i ]);
-                }
-                pattern.channels[ channelIndex ] = notes;
-            });
-        }
+        if ( PatternUtil.has32ndNotes( pattern ))
+            PatternUtil.shrink( pattern );
     });
 }

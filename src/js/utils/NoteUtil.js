@@ -27,8 +27,7 @@
 
 module.exports =
 {
-    isPercussive( sound )
-    {
+    isPercussive( sound ) {
         return ( [ "KICK", "HAT", "SNARE", "SNARE2" ].indexOf( sound ) > - 1 );
     }
 };

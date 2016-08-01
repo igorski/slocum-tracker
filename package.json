@@ -28,6 +28,6 @@
     "mock-browser": "^0.91.34"
   },
   "scripts": {
-    "test": "mocha test"
+    "test": "grunt handlebars && mocha test"
   }
 }
