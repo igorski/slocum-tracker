@@ -86,7 +86,7 @@ module.exports =
             out.meta.created  = +new Date( TextFileUtil.getValueForKey( list, "; @created ", new Date().toString() ));
             out.meta.modified = Date.now();
             out.meta.tempo    = TextFileUtil.getValueForKey( list, "TEMPODELAY equ ", out.meta.tempo );
-            out.meta.tuning   = TextFileUtil.getValueForKey( list, "; @tuning ", 0 );
+            out.meta.tuning   = TextFileUtil.getValueForKey( list, "; @tuning ", -1 );
 
             // 2. collect hats
 
