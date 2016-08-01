@@ -332,7 +332,7 @@ const TIA = module.exports =
      *        this function will loop through all tunings until a matching code has been found
      * @return {PATTERN_STEP|null}
      */
-    getSoundByCode( code, tuningNum)
+    getSoundByCode( code, tuningNum )
     {
         let description;
 
@@ -365,6 +365,36 @@ const TIA = module.exports =
                 return out;
         }
         return out;
+    },
+
+    /**
+     * retrieve the tuning associated with a given sound
+     *
+     * @public
+     * @param {Object} sound to use as key
+     * @return {number} index of tuning, -1 if tuning wasn't found
+     */
+    getTuningBySound( sound ) {
+
+        let i = TIA.table.tunings.length, out = null;
+
+        while ( i-- ) {
+
+            const tuning = TIA.table.tunings[ i ];
+            const soundDescription = tuning[ sound.sound ];
+
+            if ( soundDescription ) {
+
+                let j = soundDescription.length, noteDescription;
+                while ( j-- )
+                {
+                    noteDescription = soundDescription[ j ];
+                    if ( noteDescription.note === sound.note && noteDescription.octave === sound.octave )
+                        return i;
+                }
+            }
+        }
+        return -1;
     }
 };
 

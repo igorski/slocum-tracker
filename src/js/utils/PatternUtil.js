@@ -86,8 +86,8 @@ const PatternUtil = module.exports =
         if ( pattern.steps === 32 )
             throw new Error( "cannot expand " + pattern.steps + " step pattern" );
 
-        pattern.channels.forEach( function( channelPattern, channelIndex )
-        {
+        pattern.channels.forEach(( channelPattern, channelIndex ) => {
+
             const notes = new Array( 32 );
 
             for ( let i = 0, w = 0; i < channelPattern.length; ++i, w += 2 )

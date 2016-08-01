@@ -131,6 +131,11 @@ module.exports =
             collectEventsForPattern( list, out.patterns, 1, patternH, patternL, song2start, out.meta.tuning );
 
             PatternUtil.sanitizePatternPrecision( out.patterns );
+
+            // unknown tuning ? try to determine tuning by most note matches
+
+            if ( out.meta.tuning === -1 )
+                out.meta.tuning = determineSongTuning( out.patterns );
         }
         catch ( e ) {
             console.warn( "error occurred during disassembly", e.message );
@@ -394,5 +399,49 @@ function collectEventsForPattern(
                 });
             }
         });
+    }
+}
+
+function determineSongTuning( patterns ) {
+
+    let tuning0 = 0;
+    let tuning1 = 0;
+    let tuning2 = 0;
+
+    patterns.forEach(( pattern, patternIndex ) => {
+
+        pattern.channels.forEach(( channel, channelIndex ) => {
+
+            for ( let i = 0; i < pattern.steps; ++i ) {
+                switch( TIA.getTuningBySound( channel[ i ] )) {
+                    case 0:
+                        ++tuning0;
+                        break;
+
+                    case 1:
+                        ++tuning1;
+                        break;
+
+                    case 2:
+                        ++tuning2;
+                        break;
+                }
+            }
+        });
+    });
+
+    switch ( Math.max( tuning0, tuning1, tuning2 )) {
+
+        case tuning0:
+            return 0;
+
+        case tuning1:
+            return 1;
+
+        case tuning2:
+            return 2;
+
+        default:
+            return -1;
     }
 }
