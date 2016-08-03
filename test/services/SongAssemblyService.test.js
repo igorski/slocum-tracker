@@ -14,7 +14,7 @@ const ObjectUtil          = require( "../../src/js/utils/ObjectUtil" );
 const TextFileUtil        = require( "../../src/js/utils/TextFileUtil" );
 const Rand                = require( "../helpers/Rand" );
 
-describe( "AssemblerFactory", () =>
+describe( "SongAssemblyService", () =>
 {
     /* setup */
 
@@ -64,13 +64,14 @@ describe( "AssemblerFactory", () =>
 
         const asm = TextFileUtil.textToLineArray( SongAssemblyService.assemble( song ));
 
-        assert.ok( asm[ 1 ].indexOf( song.meta.title ) > -1,
+        assert.ok( asm[ TextFileUtil.getLineNumForText( asm, "@title" ) ].indexOf( song.meta.title ) > -1,
             "expected assembly output to contain song title" );
 
-        assert.ok( asm[ 3 ].indexOf( song.meta.author ) > -1,
+        assert.ok( asm[ TextFileUtil.getLineNumForText( asm, "@author" ) ].indexOf( song.meta.author ) > -1,
             "expected assembly output to contain song title" );
 
-        assert.ok( asm[ 4 ].indexOf( Time.timestampToDate( song.meta.created )) > -1,
+        assert.ok( asm[ TextFileUtil.getLineNumForText( asm, "@created" ) ].indexOf(
+                Time.timestampToDate( song.meta.created )) > -1,
             "expected assembly output to contain song title" );
     });
 
