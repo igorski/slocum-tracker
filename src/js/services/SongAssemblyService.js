@@ -88,7 +88,16 @@ module.exports =
             out.meta.tempo    = TextFileUtil.getValueForKey( list, "TEMPODELAY equ ", out.meta.tempo );
             out.meta.tuning   = TextFileUtil.getValueForKey( list, "; @tuning ", -1 );
 
-            // 2. collect hats
+            // 2. remove all comments (make parsing errorprone when keywords are mentioned in comments)
+
+            let i = list.length, line;
+            while ( i-- ) {
+                line = list[ i ].trim();
+                if ( line.charAt( 0 ) === ";" || line.length === 0 )
+                    list.splice( i, 1 );
+            }
+
+            // 3. collect hats
 
             out.hats.start  = TextFileUtil.getValueForKey( list, "HATSTART equ ",  255 );
             out.hats.volume = TextFileUtil.getValueForKey( list, "HATVOLUME equ ", 5 );
@@ -97,9 +106,9 @@ module.exports =
             out.hats.steps  = 16;
 
             const hatPatternStart = TextFileUtil.getLineNumForText( list, "hatPattern" ) + 1;
-            let line;
 
-            for ( let i = 0, l = hatPatternStart; l < ( hatPatternStart + 4 ); ++i, ++l ) {
+            let l;
+            for ( i = 0, l = hatPatternStart; l < ( hatPatternStart + 4 ); ++i, ++l ) {
 
                 line = list[ l ];
 
@@ -118,7 +127,7 @@ module.exports =
                 }
             }
 
-            // 3. collect patterns
+            // 4. collect patterns
 
             out.patterns = [];
 
