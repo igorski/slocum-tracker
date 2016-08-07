@@ -50,7 +50,7 @@ module.exports =
         const data = ObjectUtil.clone( song );
 
         data.meta.created = Time.timestampToDate( data.meta.created );
-        data.patterns     = convertPatterns( data.patterns, TIA.table.tunings[ song.meta.tuning ]);
+        data.patterns     = convertPatternToAsm( data.patterns, TIA.table.tunings[ song.meta.tuning ]);
         data.hats.pattern = convertHatPattern( data.hats.pattern );
 
         return TemplateUtil.render( "asm", data );
@@ -120,7 +120,7 @@ module.exports =
                 }
             }
 
-            for ( let i = 1; i < 32; i += 2 ) {
+            for ( i = 1; i < 32; i += 2 ) {
                 if ( out.hats.pattern[ i ] !== 0 ) {
                     out.hats.steps = 32;
                     break;
@@ -136,8 +136,8 @@ module.exports =
             const song1start = TextFileUtil.getLineNumForText( list, "song1" ) + 1;
             const song2start = TextFileUtil.getLineNumForText( list, "song2" ) + 1;
 
-            collectEventsForPattern( list, out.patterns, 0, patternH, patternL, song1start, out.meta.tuning );
-            collectEventsForPattern( list, out.patterns, 1, patternH, patternL, song2start, out.meta.tuning );
+            convertAsmToPatterns( list, out.patterns, 0, patternH, patternL, song1start, out.meta.tuning );
+            convertAsmToPatterns( list, out.patterns, 1, patternH, patternL, song2start, out.meta.tuning );
 
             PatternUtil.sanitizePatternPrecision( out.patterns );
 
@@ -155,7 +155,7 @@ module.exports =
 
 /* private methods */
 
-function convertPatterns( patterns, tuning )
+function convertPatternToAsm( patterns, tuning )
 {
     const out = {
         channel1sequence : "",
@@ -201,6 +201,16 @@ function convertPatterns( patterns, tuning )
                         code = TIA.getPercussionCode( step.sound );
                     else
                         code = TIA.getCode( tuning, step.sound, step.note, step.octave );
+
+                    // if no sound code was found, we're probably dealing with an imported
+                    // song created outside of Slocum Tracker (with less strict tuning restrictions)
+                    // try to find a code outside of the determined tuning
+                    if ( code === null ) {
+                        const tuning = TIA.getTuningBySound( step );
+
+                        if ( tuning )
+                            code = TIA.getCode( tuning, step.sound, step.note, step.octave );
+                    }
                 }
 
                 // at beginning of each quarter measure, prepare accents list
@@ -327,87 +337,102 @@ function getPreviousPatternDeclaration( patternArray, patternString )
     return -1;
 }
 
-function collectEventsForPattern(
+function convertAsmToPatterns(
     list, patterns, channelNum, patternH, patternL, channelPatternStartIndex, tuning ) {
 
     let patternIndex = 0, line;
 
     for ( let l = channelPatternStartIndex; l < ( channelPatternStartIndex + 255 ); ++l ) {
 
-        line = list[ l ];
+        line = TextFileUtil.stripTrailingComment( list[ l ] );
 
         if ( line.indexOf( DECLARATION_BYTE ) === -1 || line.charAt( 0 ) === ";" )
             continue;
 
-        const byte = parseInt( line.replace( DECLARATION_BYTE, "" ), 10 );
+        const bytes = line.replace( DECLARATION_BYTE, "" ).split( "," );
 
-        // reached end of channels patterns
-        if ( byte === 255 )
-            break;
+        for ( let bi = 0; bi < bytes.length; ++bi ) {
 
-        if ( patternIndex > ( patterns.length - 1 ))
-            patterns.push( PatternFactory.createEmptyPattern( 32 ));
+            const byte = parseInt( bytes[ bi ], 10 );
 
-        const pattern = patterns[ patternIndex ];
-        const channel = pattern.channels[ channelNum ];
-        pattern.steps = 32;
+            // 255 implies song reached its end
+            if ( byte === 255 )
+                return;
 
-        ++patternIndex;
-        const attenuated = ( byte >= 128 );
+            if ( patternIndex > ( patterns.length - 1 ))
+                patterns.push( PatternFactory.createEmptyPattern( 32 ));
 
-        if ( channelNum === 0 )
-            pattern.channel1attenuation = attenuated;
-        else
-            pattern.channel2attenuation = attenuated;
+            const pattern = patterns[ patternIndex ];
+            const channel = pattern.channels[ channelNum ];
+            pattern.steps = 32;
 
-        let patternWord = list[ (( attenuated ) ? patternL : patternH ) + ( byte % 128 )];
-        patternWord = patternWord.replace( DECLARATION_WORD, "" ).split( "," );
-        let patternNoteIndex = 0, event;
+            ++patternIndex;
+            const attenuated = ( byte >= 128 );
 
-        patternWord.forEach(( patternName, wordIndex ) => {
+            if ( channelNum === 0 )
+                pattern.channel1attenuation = attenuated;
+            else
+                pattern.channel2attenuation = attenuated;
 
-            const sanitizedName = patternName.trim().split( " " )[ 0 ];
-            const patternEvents = TextFileUtil.getLastLineNumForText( list, sanitizedName, true ) + 1;
+            let patternWordList = list[ (( attenuated ) ? patternL : patternH ) + ( byte % 128 )];
+            patternWordList = patternWordList.replace( DECLARATION_WORD, "" ).split( "," );
+            let patternNoteIndex = 0, event;
 
-            for ( let pi = 0, pl = patternEvents; pl < list.length; ++pi, ++pl ) {
+            patternWordList.forEach(( patternName, wordIndex ) => {
 
-                const patternLine = list[ pl ];
+                const sanitizedName = TextFileUtil.stripTrailingComment( patternName ).trim().split( " " )[ 0 ];
+                const patternEvents = TextFileUtil.getLastLineNumForText( list, sanitizedName, true ) + 1;
 
-                if ( patternLine.indexOf( DECLARATION_BYTE ) === -1 )
-                    continue;
+                for ( let pi = 0, pl = patternEvents; pl < list.length; ++pi, ++pl ) {
 
-                const notes = patternLine.split( DECLARATION_BYTE )[ 1 ].split( "," );
+                    const patternLine = list[ pl ];
 
-                if ( notes.length === 1 ) {
-                    // is accent list
-                    const accents = notes[0].replace( "%", "" ).trim();
+                    if ( patternLine.indexOf( DECLARATION_BYTE ) === -1 )
+                        continue;
 
-                    if ( accents.length === 8 ) {
+                    const notes = patternLine.split( DECLARATION_BYTE )[ 1 ].split( "," );
+
+                    if ( notes.length === 1 ) {
+
                         const patternStartNoteIndex = patternNoteIndex - 8;
-                        for ( let ai = 0; ai < 8; ++ai ) {
-                            event = channel[ patternStartNoteIndex + ai ];
-                            if ( event && event.sound )
-                                event.accent = ( accents.charAt( ai ) === "1" );
+                        let accents;
+
+                        if ( notes[0].trim() === "255" )
+                            // "byte 255" can be used to declare an accent list where all notes have accents
+                            accents = "11111111";
+                        else
+                            // binary list defines accents for all the 8 notes in the words 1/4 bar block
+                            accents = notes[0].replace( "%", "" ).trim();
+
+                        if ( accents.length === 8 ) {
+                            for ( let ai = 0; ai < 8; ++ai ) {
+                                event = channel[ patternStartNoteIndex + ai ];
+                                if ( event && event.sound )
+                                    event.accent = ( accents.charAt( ai ) === "1" );
+                            }
                         }
+                        break;
                     }
-                    break;
+                    else if ( notes.length >= 2 ) {
+
+                        notes.forEach(( unsanitizedNote, noteIndex ) => {
+
+                            let note = unsanitizedNote.trim();
+
+                            if ( note !== "255" ) {
+
+                                const matches = note.match( /(%[0-1])\w+/ );
+                                note = ( matches ) ? matches[0] : note;
+
+                                if ( event = TIA.getSoundByCode( note, tuning ))
+                                    channel[ patternNoteIndex ] = event;
+                            }
+                            ++patternNoteIndex;
+                        });
+                    }
                 }
-                notes.forEach(( unsanitizedNote, noteIndex ) => {
-
-                    let note = unsanitizedNote.trim();
-
-                    if ( note !== "255" ) {
-
-                        const matches = note.match( /(%[0-1])\w+/ );
-                        note = ( matches ) ? matches[0] : note;
-
-                        if ( event = TIA.getSoundByCode( note, tuning ))
-                            channel[ patternNoteIndex ] = event;
-                    }
-                    ++patternNoteIndex;
-                });
-            }
-        });
+            });
+        }
     }
 }
 

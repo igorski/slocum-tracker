@@ -104,6 +104,7 @@ module.exports = {
         for ( let i = 0, l = textArray.length; i < l; ++i )
         {
             line = textArray[ i ];
+
             if ( line.indexOf( key ) > -1 ) {
 
                 if ( typeof fallbackValue === "number" )
@@ -113,5 +114,20 @@ module.exports = {
             }
         }
         return fallbackValue;
+    },
+
+    /**
+     * remove the trailing comment from a line of assembly code
+     *
+     * @public
+     * @param {string} line
+     * @return {string}
+     */
+    stripTrailingComment( line ) {
+
+        if ( line.indexOf( ";" ) > 0 )
+            return line.split( ";" )[ 0 ];
+
+        return line;
     }
 };
