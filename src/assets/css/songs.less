@@ -27,15 +27,24 @@
     border-bottom: 1px solid #53565c;
     font-family: Montserrat, Helvetica, sans-serif;
 
+    .title, .date, .delete {
+      display: inline-block;
+    }
+
     .title, .date {
       .noEvents;
     }
 
     .title {
-      float: left;
+      width: 55%;
     }
+
     .date {
-      float: right;
+      width: 40%;
+    }
+
+    .delete {
+      width: 5%;
     }
 
     &:nth-child(even) {

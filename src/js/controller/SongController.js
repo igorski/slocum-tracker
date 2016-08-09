@@ -28,10 +28,11 @@ const TemplateUtil        = require( "../utils/TemplateUtil" );
 const SongUtil            = require( "../utils/SongUtil" );
 const Pubsub              = require( "pubsub-js" );
 const Messages            = require( "../definitions/Messages" );
+const EventHandler        = require( "zjslib" ).EventHandler;
 
 /* private properties */
 
-let container, slocum, keyboardController, list;
+let container, slocum, keyboardController, list, handler;
 
 const SongController = module.exports =
 {
@@ -73,8 +74,6 @@ const SongController = module.exports =
         list.setAttribute( "id", "songList" );
         document.body.appendChild( list ); // see CSS for visibility toggles
 
-        list.addEventListener( "click", handleSongClick );
-
         // add message listeners
         Pubsub.subscribe( Messages.CLOSE_OVERLAYS, function( type, payload )
         {
@@ -107,13 +106,22 @@ function handleLoad( aEvent )
         return;
     }
 
+    // create an EventHandler to hold references to all listeners (allows easy instant cleanup)
+    disposeHandler();
+    handler = new EventHandler();
+
     songs.forEach( function( song )
     {
         li = document.createElement( "li" );
         li.setAttribute( "data-id", song.id );
-        li.innerHTML = "<span class='title'>" + song.meta.title + "</span><span class='date'>" + Time.timestampToDate( song.meta.created ) + "</span>";
+        li.innerHTML = "<span class='title'>" + song.meta.title + ", by " + song.meta.author + "</span>" +
+            "<span class='date'>" + Time.timestampToDate( song.meta.modified ) + "</span>" +
+            "<span class='delete'>x</span>";
 
         list.appendChild( li );
+
+        handler.addEventListener( li, "click", handleSongOpenClick );
+        handler.addEventListener( li.querySelector( ".delete" ), "click", handleSongDeleteClick );
     });
 
     list.classList.add( "active" );
@@ -131,7 +139,7 @@ function handleSave( aEvent )
     }
 }
 
-function handleSongClick( aEvent )
+function handleSongOpenClick( aEvent )
 {
     if ( aEvent.target.nodeName === "LI" )
     {
@@ -241,7 +249,34 @@ function isValid( song )
     return hasContent;
 }
 
+function handleSongDeleteClick( aEvent )
+{
+    const id        = aEvent.target.parentNode.getAttribute( "data-id"),
+          songModel = slocum.SongModel,
+          song      = songModel.getSongById( id );
+
+    if ( !song )
+        return;
+
+    if ( confirm( "Are you sure you want to delete '" + song.meta.title + "'? This cannot be undone!" )) {
+        songModel.deleteSong( song );
+        handleLoad( null ); // refreshes view
+    }
+}
+
 function handleClose()
 {
     list.classList.remove( "active" );
+}
+
+/**
+ * frees all event handlers attached to the created
+ * SongBrowser DOM elements so they can be garbage collected
+ */
+function disposeHandler()
+{
+    if ( handler ) {
+        handler.dispose();
+        handler = null;
+    }
 }
