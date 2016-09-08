@@ -294,8 +294,9 @@ function convertPatternToAsm( patterns, tuning )
     Object.keys( cachedPatterns ).forEach( function( key, index )
     {
         // replace hashed value with a shorthand (otherwise code won't compile, go figure!)
+        // note we use dot notation so the pattern declaration will be local to the file
 
-        replacement = "Pattern" + ( index + 1 );
+        replacement = ".Pattern" + ( index + 1 );
         value = cachedPatterns[ key ].replace( key, replacement );
         out.patterns += value;
 
