@@ -258,7 +258,7 @@ function convertPatternToAsm( patterns, tuning )
                     patternArrayL.push( patternWordString + " ; " + patternIndex + "\n" );
                 }
                 else
-                    patternIndex = existingPatternIndex;
+                    patternIndex = 128 + existingPatternIndex;
             }
             else
             {
