@@ -24,6 +24,8 @@
 
 module.exports =
 {
+    /* convenience methods for dealing with Select inputs */
+
     /**
      * convenience method to get the value of the currently
      * selected option for given select input element
@@ -48,14 +50,14 @@ module.exports =
      */
     setSelectedOption( aSelect, aValue )
     {
-        let options = aSelect.options;
+        const options = aSelect.options;
 
         if ( !options )
             return;
 
         let i = options.length, option;
 
-        aValue = aValue.toString();
+        aValue = ( aValue !== undefined && aValue !== null ) ? aValue.toString() : "";
 
         while ( i-- )
         {
@@ -82,16 +84,16 @@ module.exports =
      */
     setOptions( aSelect, aOptions )
     {
-        let children = aSelect.childNodes;
+        const children = aSelect.childNodes;
         let i = children.length;
 
         while ( i-- ) {
-            aSelect.removeChild( aSelect.childNodes[ i ]);
+            aSelect.removeChild( children[ i ]);
         }
 
         let element;
 
-        aOptions.forEach( function( option )
+        aOptions.forEach(( option ) =>
         {
             element           = document.createElement( "option" );
             element.value     = option.value;
@@ -99,5 +101,81 @@ module.exports =
 
             aSelect.appendChild( element );
         });
+    },
+
+    /* convenience methods for working with radio / checkbox groups */
+
+    /**
+     * sets the checked option in given group to the the option
+     * that matches the given value
+     *
+     * @public
+     * @param {Array.<Element>} aGroup
+     * @param {string|number|boolean} aValue
+     */
+    setCheckedOption( aGroup, aValue )
+    {
+        let i = aGroup.length, option;
+
+        aValue = aValue.toString();
+
+        while ( i-- )
+        {
+            option = aGroup[ i ];
+
+            if ( option.value === aValue )
+                option.checked = true;
+            else
+                option.checked = false;
+        }
+    },
+
+    /**
+     * gets the value associated with the currently checked
+     * value inside given group
+     *
+     * @public
+     * @param {Array.<Element>} aGroup
+     * @return {string}
+     */
+    getCheckedOption( aGroup )
+    {
+        let i = aGroup.length, option;
+
+        while ( i-- )
+        {
+            option = aGroup[ i ];
+            if ( option.checked === true )
+                return option.value;
+        }
+        return "";
+    },
+
+    /**
+     * sets focus on the given element
+     *
+     * @public
+     * @param {Element} aElement
+     */
+    focus( aElement ) {
+
+        if ( aElement && typeof aElement.focus === "function" ) {
+
+            setTimeout(() => aElement.focus(), 100 );
+        }
+    },
+
+    /**
+     * unsets focus on the given element
+     *
+     * @public
+     * @param {Element} aElement
+     */
+    blur( aElement ) {
+
+        if ( aElement && typeof aElement.blur === "function" ) {
+
+            setTimeout(() => aElement.blur(), 100 );
+        }
     }
 };

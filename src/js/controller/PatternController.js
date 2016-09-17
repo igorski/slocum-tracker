@@ -39,7 +39,7 @@ let container, slocum, noteEntryController, keyboardController;
 let activePattern = 0, activeChannel = 0, activeStep = 0, stepAmount = 16,
     stepOnSelection = -1, shrinkSelection = false, minOnSelection, maxOnSelection,
     prevVerticalKey, interactionData = {},
-    stateModel, selectionModel, patternCopy, positionTitle,
+    stateModel, selectionModel, patternCopy, currentPositionInput, totalPatternsDisplay,
     stepSelection, channel1attenuation, channel2attenuation;
 
 const PatternController = module.exports =
@@ -58,11 +58,12 @@ const PatternController = module.exports =
         keyboardController  = keyboardControllerRef;
         noteEntryController = noteEntryControllerRef;
 
-        container           = containerRef;
-        positionTitle       = document.querySelector( "#currentPattern" );
-        stepSelection       = document.querySelector( "#patternSteps"  );
-        channel1attenuation = document.querySelector( "#channel1attenuation"  );
-        channel2attenuation = document.querySelector( "#channel2attenuation"  );
+        container            = containerRef;
+        currentPositionInput = document.querySelector( "#currentPattern .current" );
+        totalPatternsDisplay = document.querySelector( "#currentPattern .total" );
+        stepSelection        = document.querySelector( "#patternSteps"  );
+        channel1attenuation  = document.querySelector( "#channel1attenuation"  );
+        channel2attenuation  = document.querySelector( "#channel2attenuation"  );
 
         selectionModel = new SelectionModel();
         stateModel     = new StateModel();
@@ -82,6 +83,9 @@ const PatternController = module.exports =
         document.querySelector( "#patternPaste"  ).addEventListener( "click",  handlePatternPaste );
         document.querySelector( "#patternAdd"    ).addEventListener( "click",  handlePatternAdd );
         document.querySelector( "#patternDelete" ).addEventListener( "click",  handlePatternDelete );
+        currentPositionInput.addEventListener( "focus",  handleCurrentPositionInteraction );
+        currentPositionInput.addEventListener( "change", handleCurrentPositionInteraction );
+        currentPositionInput.addEventListener( "blur",   handleCurrentPositionInteraction );
         document.querySelector( "#patternBack"   ).addEventListener( "click",  handlePatternNavBack );
         document.querySelector( "#patternNext"   ).addEventListener( "click",  handlePatternNavNext );
 
@@ -108,8 +112,8 @@ const PatternController = module.exports =
             steps   : pattern.steps,
             pattern : pattern
         });
-        positionTitle.querySelector( ".current" ).innerHTML = ( activePattern + 1 ).toString();
-        positionTitle.querySelector( ".total" ).innerHTML   = slocum.activeSong.patterns.length.toString();
+        currentPositionInput.value = ( activePattern + 1 ).toString();
+        totalPatternsDisplay.innerHTML = slocum.activeSong.patterns.length.toString();
         Form.setSelectedOption( stepSelection, pattern.steps );
         Form.setSelectedOption( channel1attenuation, pattern.channel1attenuation );
         Form.setSelectedOption( channel2attenuation, pattern.channel2attenuation );
@@ -530,6 +534,38 @@ function handlePatternDelete( aEvent )
             PatternController.update();
 
         Pubsub.publish( Messages.PATTERN_AMOUNT_UPDATED );
+    }
+}
+
+function handleCurrentPositionInteraction( e ) {
+
+    const element = e.target;
+    switch ( e.type ) {
+
+        case "focus":
+            keyboardController.setSuspended( true );
+            break;
+
+        case "blur":
+            keyboardController.setSuspended( false );
+            break;
+
+        case "change":
+
+            let value = Math.min( parseInt( element.value, 10 ), slocum.activeSong.patterns.length );
+
+            if ( isNaN( value ))
+                value = activePattern + 1;
+
+            element.value = value;
+            --value; // normalize to Array indices (0 == first, not 1)
+
+            if ( value !== activePattern ) {
+                activePattern = value;
+                PatternController.update();
+            }
+            Form.blur( element );
+            break;
     }
 }
 
