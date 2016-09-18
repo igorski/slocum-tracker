@@ -56,7 +56,7 @@ const Pubsub                          = require( "pubsub-js" );
 
     const container = document.querySelector( "#application" );
 
-    slocum.TemplateService.render( "index", container ).then(() => {
+    slocum.TemplateService.render( "index", container, null, true ).then(() => {
 
         // initialize application controllers
 
