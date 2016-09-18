@@ -20,20 +20,21 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-const SongModel              = require( "./model/SongModel" );
-const HatController          = require( "./controller/HatController" );
-const HelpController         = require( "./controller/HelpController" );
-const KeyboardController     = require( "./controller/KeyboardController" );
-const MenuController         = require( "./controller/MenuController" );
-const MetaController         = require( "./controller/MetaController" );
-const NoteEntryController    = require( "./controller/NoteEntryController" );
-const NotificationController = require( "./controller/NotificationController" );
-const PatternController      = require( "./controller/PatternController" );
-const SongController         = require( "./controller/SongController" );
-const ObjectUtil             = require( "./utils/ObjectUtil" );
-const TemplateUtil           = require( "./utils/TemplateUtil" );
-const Messages               = require( "./definitions/Messages" );
-const Pubsub                 = require( "pubsub-js" );
+const SongModel                       = require( "./model/SongModel" );
+const HatController                   = require( "./controller/HatController" );
+const HelpController                  = require( "./controller/HelpController" );
+const KeyboardController              = require( "./controller/KeyboardController" );
+const MenuController                  = require( "./controller/MenuController" );
+const MetaController                  = require( "./controller/MetaController" );
+const NoteEntryController             = require( "./controller/NoteEntryController" );
+const NotificationController          = require( "./controller/NotificationController" );
+const PatternController               = require( "./controller/PatternController" );
+const AdvancedPatternEditorController = require( "./controller/AdvancedPatternEditorController" );
+const SongController                  = require( "./controller/SongController" );
+const ObjectUtil                      = require( "./utils/ObjectUtil" );
+const TemplateService                 = require( "./services/TemplateService" );
+const Messages                        = require( "./definitions/Messages" );
+const Pubsub                          = require( "pubsub-js" );
 
 /* initialize */
 
@@ -43,7 +44,8 @@ const Pubsub                 = require( "pubsub-js" );
 
     const slocum = ref.slocum =
     {
-        SongModel : new SongModel()
+        SongModel       : new SongModel(),
+        TemplateService : new TemplateService()
     };
 
     // create new empty song or load last available song
@@ -54,19 +56,24 @@ const Pubsub                 = require( "pubsub-js" );
 
     const container = document.querySelector( "#application" );
 
-    container.innerHTML += TemplateUtil.render( "index" );
+    slocum.TemplateService.render( "index", container ).then(() => {
 
-    // initialize application controllers
+        // initialize application controllers
 
-    KeyboardController.init( slocum );
-    MenuController.init();
-    SongController.init( container.querySelector( "#songSection" ), slocum, KeyboardController );
-    MetaController.init( container.querySelector( "#metaSection" ), slocum, KeyboardController );
-    NoteEntryController.init( container, slocum, KeyboardController );
-    NotificationController.init( container );
-    PatternController.init( container.querySelector( "#patternContainer" ), slocum, KeyboardController, NoteEntryController );
-    HelpController.init( container.querySelector( "#helpSection" ), slocum );
-    HatController.init( container.querySelector( "#hatSection" ), slocum, KeyboardController );
+        KeyboardController.init( slocum );
+        MenuController.init();
+        SongController.init( container.querySelector( "#songSection" ), slocum, KeyboardController );
+        MetaController.init( container.querySelector( "#metaSection" ), slocum, KeyboardController );
+        NoteEntryController.init( container, slocum, KeyboardController );
+        NotificationController.init( container );
+        PatternController.init(
+            container.querySelector( "#patternContainer" ), slocum,
+            KeyboardController, NoteEntryController
+        );
+        AdvancedPatternEditorController.init( container, slocum, KeyboardController );
+        HelpController.init( container.querySelector( "#helpSection" ), slocum );
+        HatController.init( container.querySelector( "#hatSection" ), slocum, KeyboardController );
+    });
 
     // subscribe to pubsub system to receive and broadcast messages across the application
 

@@ -6,7 +6,8 @@ module.exports = {
                 transform: [
                     ["babelify", {
                         loose: "all"
-                    }]
+                    }],
+                    "workerify"
                 ]
             }
         },
@@ -21,7 +22,8 @@ module.exports = {
                 transform: [
                     ["babelify", {
                         loose: "all"
-                    }]
+                    }],
+                    "workerify"
                 ]
             }
         },

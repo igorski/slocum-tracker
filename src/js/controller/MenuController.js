@@ -22,6 +22,7 @@
  */
 "use strict";
 
+const Config   = require( "../config/Config" );
 const Pubsub   = require( "pubsub-js" );
 const Messages = require( "../definitions/Messages" );
 
@@ -39,7 +40,9 @@ module.exports =
         toggle = menu.querySelector( ".toggle" );
 
         toggle.addEventListener( "click",     handleToggle );
-        menu.addEventListener  ( "mouseover", handleMouseOver );
+
+        if ( Config.canHover() )
+            menu.addEventListener( "mouseover", handleMouseOver );
 
         Pubsub.subscribe( Messages.CLOSE_OVERLAYS, handleBroadcast );
     }

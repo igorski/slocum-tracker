@@ -22,9 +22,8 @@
  */
 "use strict";
 
-const Pubsub       = require( "pubsub-js" );
-const Messages     = require( "../definitions/Messages" );
-const TemplateUtil = require( "../utils/TemplateUtil" );
+const Pubsub   = require( "pubsub-js" );
+const Messages = require( "../definitions/Messages" );
 
 /* private properties */
 
@@ -41,22 +40,26 @@ module.exports =
      */
     init( containerRef, slocumRef )
     {
-        container          = containerRef;
-        slocum             = slocumRef;
+        container = containerRef;
+        slocum    = slocumRef;
 
-        container.innerHTML += TemplateUtil.render( "helpView" );
+        // prepare view
 
-        // cache view elements
+        slocum.TemplateService.render( "helpView", container, null, true ).then(() => {
 
-        contentContainer = container.querySelector( ".content" );
+            // cache view elements
 
-        // add listeners
+            contentContainer = container.querySelector( ".content" );
 
-        Pubsub.subscribe( Messages.DISPLAY_HELP, handleBroadcast );
+            // add listeners
 
-        // show default content
+            Pubsub.subscribe( Messages.DISPLAY_HELP, handleBroadcast );
 
-        Pubsub.publish( Messages.DISPLAY_HELP, "helpTopicGeneral" );
+            // show default content
+
+            Pubsub.publish( Messages.DISPLAY_HELP, "helpTopicGeneral" );
+
+        });
     }
 };
 
@@ -72,12 +75,13 @@ function handleBroadcast( type, payload )
 
             if ( currentSection !== payload )
             {
-                let template = TemplateUtil.render( payload );
+                slocum.TemplateService.render( payload, contentContainer, payload, false, false ).then(( template ) => {
 
-                if ( template.length > 0 )
-                    contentContainer.innerHTML = template;
+                    if ( template.length > 0 )
+                        contentContainer.innerHTML = template;
 
-                currentSection = payload;
+                    currentSection = payload;
+                });
             }
             break;
     }

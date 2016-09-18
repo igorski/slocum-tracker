@@ -22,12 +22,12 @@
  */
 "use strict";
 
-const Form         = require( "../utils/Form" );
-const SongUtil     = require( "../utils/SongUtil" );
-const TemplateUtil = require( "../utils/TemplateUtil" );
-const TIA          = require( "../definitions/TIA" );
-const Messages     = require( "../definitions/Messages" );
-const Pubsub       = require( "pubsub-js" );
+const Config   = require( "../config/Config" );
+const Form     = require( "../utils/Form" );
+const SongUtil = require( "../utils/SongUtil" );
+const TIA      = require( "../definitions/TIA" );
+const Messages = require( "../definitions/Messages" );
+const Pubsub   = require( "pubsub-js" );
 
 /* private properties */
 
@@ -49,29 +49,33 @@ const MetaController = module.exports =
         slocum             = slocumRef;
         keyboardController = keyboardControllerRef;
 
-        container.innerHTML += TemplateUtil.render( "metaView" );
+        // prepare view
 
-        // cache view elements
+        slocum.TemplateService.render( "metaView", container, null, true ).then(() => {
 
-        title  = container.querySelector( "#songTitle" );
-        author = container.querySelector( "#songAuthor" );
-        tempo  = container.querySelector( "#songTempo" );
-        tuning = container.querySelector( "#songTuning" );
+            // cache view elements
 
-        // synchronize with model
+            title  = container.querySelector( "#songTitle" );
+            author = container.querySelector( "#songAuthor" );
+            tempo  = container.querySelector( "#songTempo" );
+            tuning = container.querySelector( "#songTuning" );
 
-        MetaController.update();
+            // synchronize with model
 
-        // add listeners
+            MetaController.update();
 
-        [ title, author, tempo, tuning ].forEach( function( element )
-        {
-            element.addEventListener( "change", handleChange );
-            element.addEventListener( "focus",  handleFocusIn );
-            element.addEventListener( "blur",   handleFocusOut );
+            // add listeners
+
+            [ title, author, tempo, tuning ].forEach( function( element )
+            {
+                element.addEventListener( "change", handleChange );
+                element.addEventListener( "focus",  handleFocusIn );
+                element.addEventListener( "blur",   handleFocusOut );
+            });
+
+            if ( Config.canHover() )
+                container.addEventListener( "mouseover", handleMouseOver );
         });
-
-        container.addEventListener( "mouseover", handleMouseOver );
 
         Pubsub.subscribe( Messages.SONG_LOADED, handleBroadcast );
     },

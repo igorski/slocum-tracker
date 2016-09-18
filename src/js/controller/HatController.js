@@ -22,10 +22,10 @@
  */
 "use strict";
 
-const Form         = require( "../utils/Form" );
-const TemplateUtil = require( "../utils/TemplateUtil" );
-const Pubsub       = require( "pubsub-js" );
-const Messages     = require( "../definitions/Messages" );
+const Config   = require( "../config/Config" );
+const Form     = require( "../utils/Form" );
+const Pubsub   = require( "pubsub-js" );
+const Messages = require( "../definitions/Messages" );
 
 /* private properties */
 
@@ -48,28 +48,34 @@ const HatController = module.exports =
         slocum             = slocumRef;
         keyboardController = keyboardControllerRef;
 
-        container.innerHTML += TemplateUtil.render( "hatEditor" );
+        // prepare view
 
-        // cache view elements
+        slocum.TemplateService.render( "hatEditor", container ).then(() => {
 
-        start  = container.querySelector( "#hatStart" );
-        volume = container.querySelector( "#hatVolume" );
-        steps  = container.querySelector( "#hatSteps" );
-        pitch  = container.querySelector( "#hatPitch" );
-        patternContainer = container.querySelector( ".pattern ul" );
+            // cache view elements
 
-        // synchronize with model
+            start  = container.querySelector( "#hatStart" );
+            volume = container.querySelector( "#hatVolume" );
+            steps  = container.querySelector( "#hatSteps" );
+            pitch  = container.querySelector( "#hatPitch" );
+            patternContainer = container.querySelector( ".pattern ul" );
 
-        HatController.update();
+            // synchronize with model
 
-        // add listeners
+            HatController.update();
 
-        start.addEventListener           ( "change", handleStartChange );
-        volume.addEventListener          ( "change", handleVolumeChange );
-        pitch.addEventListener           ( "change", handlePitchChange );
-        steps.addEventListener           ( "change", handleStepsChange );
-        patternContainer.addEventListener( "click",  handlePatternClick );
-        container.addEventListener       ( "mouseover", handleMouseOver );
+            // add listeners
+
+            start.addEventListener           ( "change", handleStartChange );
+            volume.addEventListener          ( "change", handleVolumeChange );
+            pitch.addEventListener           ( "change", handlePitchChange );
+            steps.addEventListener           ( "change", handleStepsChange );
+            patternContainer.addEventListener( "click",  handlePatternClick );
+
+            if ( Config.canHover() )
+                container.addEventListener( "mouseover", handleMouseOver );
+
+        });
 
         Pubsub.subscribe( Messages.PATTERN_AMOUNT_UPDATED, handleBroadcast );
         Pubsub.subscribe( Messages.SONG_LOADED,            handleBroadcast );

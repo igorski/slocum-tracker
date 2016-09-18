@@ -22,15 +22,41 @@
  */
 "use strict";
 
+const Bowser = require( "bowser" );
+
 module.exports =
 {
-    SHOW_ERROR                   : 0,
-    SHOW_FEEDBACK                : 1,
-    LOAD_SONG                    : 2,
-    SONG_LOADED                  : 3,
-    REFRESH_SONG                 : 4,
-    PATTERN_AMOUNT_UPDATED       : 5,
-    DISPLAY_HELP                 : 6,
-    CLOSE_OVERLAYS               : 7, // payload is optional Controller that should not close its overlay
-    OPEN_ADVANCED_PATTERN_EDITOR : 8
+    /**
+     * return the path that the application is running in, this can
+     * differ dependent on the production environment
+     *
+     * @public
+     * @return {string}
+     */
+    getBasePath(){
+        return ( typeof window.slocumPath === "string" ) ? window.slocumPath : window.location.origin + window.location.pathname;
+    },
+
+    /**
+     * whether the application is running in local development mode
+     *
+     * @public
+     * @return {boolean}
+     */
+    isDevMode(){
+        // simple check whether we're running through the connect plugin
+        return ( window.location.hostname === "localhost" || window.location.port === "3000" );
+    },
+
+    /**
+     * queries whether hover states (for help topics) are
+     * supported in the current environment
+     *
+     * @return {boolean}
+     */
+    canHover() {
+        // no hover on iOS as it ensures we have weird behaviour where you have
+        // to click links and buttons twice (once for hover/focus, second for click)
+        return !Bowser.ios;
+    }
 };

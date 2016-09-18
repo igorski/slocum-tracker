@@ -24,7 +24,6 @@
 
 const SongAssemblyService = require( "../services/SongAssemblyService" );
 const Time                = require( "../utils/Time" );
-const TemplateUtil        = require( "../utils/TemplateUtil" );
 const SongUtil            = require( "../utils/SongUtil" );
 const Pubsub              = require( "pubsub-js" );
 const Messages            = require( "../definitions/Messages" );
@@ -51,28 +50,33 @@ const SongController = module.exports =
 
         const canImportExport = ( typeof window.FileReader !== "undefined" );
 
-        container.innerHTML += TemplateUtil.render( "songView", {
+        // prepare view
+
+        const viewData = {
             canImportExport: canImportExport
+        };
+
+        slocum.TemplateService.render( "songView", container, viewData, true ).then(() => {
+
+            // grab references to elements in the template
+
+            container.querySelector( "#songLoad"   ).addEventListener( "click", handleLoad );
+            container.querySelector( "#songSave"   ).addEventListener( "click", handleSave );
+            container.querySelector( "#songReset"  ).addEventListener( "click", handleReset );
+            container.querySelector( "#songExport" ).addEventListener( "click", handleExport );
+
+            if ( canImportExport ) {
+
+                containerRef.querySelector( "#songImport" ).addEventListener( "click", handleImport );
+                containerRef.querySelector( "#songExport" ).addEventListener( "click", handleExport );
+            }
+
+            // create a list container to show the songs when loading
+
+            list = document.createElement( "ul" );
+            list.setAttribute( "id", "songList" );
+            document.body.appendChild( list ); // see CSS for visibility toggles
         });
-
-        // grab references to elements in the template
-
-        container.querySelector( "#songLoad"   ).addEventListener( "click", handleLoad );
-        container.querySelector( "#songSave"   ).addEventListener( "click", handleSave );
-        container.querySelector( "#songReset"  ).addEventListener( "click", handleReset );
-        container.querySelector( "#songExport" ).addEventListener( "click", handleExport );
-
-        if ( canImportExport ) {
-
-            containerRef.querySelector( "#songImport" ).addEventListener( "click", handleImport );
-            containerRef.querySelector( "#songExport" ).addEventListener( "click", handleExport );
-        }
-
-        // create a list container to show the songs when loading
-
-        list = document.createElement( "ul" );
-        list.setAttribute( "id", "songList" );
-        document.body.appendChild( list ); // see CSS for visibility toggles
 
         // add message listeners
         Pubsub.subscribe( Messages.CLOSE_OVERLAYS, function( type, payload )

@@ -24,7 +24,7 @@
 
 let slocum, listener, suspended = false, blockDefaults = true, optionDown = false;
 
-module.exports =
+const KeyboardController = module.exports =
 {
     /**
      * initialize KeyboardController
@@ -85,6 +85,13 @@ module.exports =
     setBlockDefaults( value )
     {
         blockDefaults = value;
+    },
+
+    reset : function()
+    {
+        KeyboardController.setListener( null );
+        KeyboardController.setSuspended( false );
+        KeyboardController.setBlockDefaults( true );
     }
 };
 

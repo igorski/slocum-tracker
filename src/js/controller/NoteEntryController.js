@@ -22,13 +22,12 @@
  */
 "use strict";
 
-const TemplateUtil = require( "../utils/TemplateUtil" );
-const NoteUtil     = require( "../utils/NoteUtil" );
-const Messages     = require( "../definitions/Messages" );
-const Select       = require( "../ui/Select" );
-const SelectList   = require( "../ui/SelectList" );
-const TIA          = require( "../definitions/TIA" );
-const Pubsub       = require( "pubsub-js" );
+const NoteUtil   = require( "../utils/NoteUtil" );
+const Messages   = require( "../definitions/Messages" );
+const Select     = require( "../ui/Select" );
+const SelectList = require( "../ui/SelectList" );
+const TIA        = require( "../definitions/TIA" );
+const Pubsub     = require( "pubsub-js" );
 
 /* private properties */
 
@@ -52,27 +51,31 @@ const NoteEntryController = module.exports =
 
         element = document.createElement( "div" );
         element.setAttribute( "id", "noteEntry" );
-        element.innerHTML = TemplateUtil.render( "noteEntry" );
 
-        soundSelect  = new Select( element.querySelector( "#sound" ),  handleSoundSelect );
-        noteSelect   = new Select( element.querySelector( "#note" ),   handleNoteSelect );
-        octaveSelect = new Select( element.querySelector( "#octave" ), handleOctaveSelect );
-        accentSelect = new Select( element.querySelector( "#accent" ));
+        // prepare view
 
-        accentSelect.setOptions([
-            { title: "ACC", value: true },
-            { title: "No",  value: false }
-        ]);
+        slocum.TemplateService.render( "noteEntry", element ).then(() => {
 
-        selectList = new SelectList(
-            [ soundSelect, noteSelect, octaveSelect, accentSelect ],
-            this, keyboardControllerRef
-        );
+            soundSelect  = new Select( element.querySelector( "#sound" ),  handleSoundSelect );
+            noteSelect   = new Select( element.querySelector( "#note" ),   handleNoteSelect );
+            octaveSelect = new Select( element.querySelector( "#octave" ), handleOctaveSelect );
+            accentSelect = new Select( element.querySelector( "#accent" ));
 
-        // add listeners
+            accentSelect.setOptions([
+                { title: "ACC", value: true },
+                { title: "No",  value: false }
+            ]);
 
-        element.querySelector( ".close-button" ).addEventListener  ( "click", handleClose );
-        element.querySelector( ".confirm-button" ).addEventListener( "click", handleReady );
+            selectList = new SelectList(
+                [ soundSelect, noteSelect, octaveSelect, accentSelect ],
+                this, keyboardControllerRef
+            );
+
+            // add listeners
+
+            element.querySelector( ".close-button" ).addEventListener  ( "click", handleClose );
+            element.querySelector( ".confirm-button" ).addEventListener( "click", handleReady );
+        });
 
         Pubsub.subscribe( Messages.CLOSE_OVERLAYS, function( type, payload )
         {

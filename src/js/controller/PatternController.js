@@ -22,6 +22,7 @@
  */
 "use strict";
 
+const Config         = require( "../config/Config" );
 const Pubsub         = require( "pubsub-js" );
 const Messages       = require( "../definitions/Messages" );
 const SelectionModel = require( "../model/SelectionModel" );
@@ -31,7 +32,6 @@ const Form           = require( "../utils/Form" );
 const NoteUtil       = require( "../utils/NoteUtil" );
 const ObjectUtil     = require( "../utils/ObjectUtil" );
 const PatternUtil    = require( "../utils/PatternUtil" );
-const TemplateUtil   = require( "../utils/TemplateUtil" );
 
 /* private properties */
 
@@ -86,15 +86,18 @@ const PatternController = module.exports =
         currentPositionInput.addEventListener( "focus",  handleCurrentPositionInteraction );
         currentPositionInput.addEventListener( "change", handleCurrentPositionInteraction );
         currentPositionInput.addEventListener( "blur",   handleCurrentPositionInteraction );
-        document.querySelector( "#patternBack"   ).addEventListener( "click",  handlePatternNavBack );
-        document.querySelector( "#patternNext"   ).addEventListener( "click",  handlePatternNavNext );
+        document.querySelector( "#patternBack"     ).addEventListener( "click", handlePatternNavBack );
+        document.querySelector( "#patternNext"     ).addEventListener( "click", handlePatternNavNext );
+        document.querySelector( "#patternAdvanced" ).addEventListener( "click", handlePatternAdvanced );
 
         stepSelection.addEventListener      ( "change", handlePatternStepChange );
         channel1attenuation.addEventListener( "change", handleAttenuationChange );
         channel2attenuation.addEventListener( "change", handleAttenuationChange );
 
         let pSection = document.querySelector( "#patternSection" );
-        pSection.addEventListener( "mouseover", handleMouseOver );
+
+        if ( Config.canHover() )
+            pSection.addEventListener( "mouseover", handleMouseOver );
 
         // subscribe to pubsub messaging
 
@@ -107,18 +110,25 @@ const PatternController = module.exports =
         if ( activePattern >= slocum.activeSong.patterns.length )
             activePattern = slocum.activeSong.patterns.length - 1;
 
-        let pattern = slocum.activeSong.patterns[ activePattern ];
-        container.innerHTML = TemplateUtil.render( "patternEditor", {
+        const pattern = slocum.activeSong.patterns[ activePattern ];
+
+        // update view
+
+        const viewData = {
             steps   : pattern.steps,
             pattern : pattern
+        };
+
+        slocum.TemplateService.render( "patternEditor", container, viewData ).then(() => {
+            highlightActiveStep();
         });
-        currentPositionInput.value = ( activePattern + 1 ).toString();
+
+        currentPositionInput.value     = ( activePattern + 1 ).toString();
         totalPatternsDisplay.innerHTML = slocum.activeSong.patterns.length.toString();
+
         Form.setSelectedOption( stepSelection, pattern.steps );
         Form.setSelectedOption( channel1attenuation, pattern.channel1attenuation );
         Form.setSelectedOption( channel2attenuation, pattern.channel2attenuation );
-
-        highlightActiveStep();
     },
 
     /* event handlers */
@@ -587,6 +597,10 @@ function handlePatternNavNext( aEvent )
         selectionModel.clearSelection();
         PatternController.update();
     }
+}
+
+function handlePatternAdvanced( aEvent ) {
+    Pubsub.publish( Messages.OPEN_ADVANCED_PATTERN_EDITOR );
 }
 
 function handlePatternStepChange( aEvent )

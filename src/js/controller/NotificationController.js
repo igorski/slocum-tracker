@@ -22,9 +22,8 @@
  */
 "use strict";
 
-const Pubsub       = require( "pubsub-js" );
-const Messages     = require( "../definitions/Messages" );
-const TemplateUtil = require( "../utils/TemplateUtil" );
+const Pubsub   = require( "pubsub-js" );
+const Messages = require( "../definitions/Messages" );
 
 /* variables */
 
@@ -75,24 +74,29 @@ function openWindow( title, body )
 {
     const dialog     = document.createElement( "div" );
     dialog.className = "notificationWindow";
-    dialog.innerHTML = TemplateUtil.render( "notificationView", { title: title, content: body });
-    container.appendChild( dialog );
-    dialog.classList.add( "visible" );
 
-    const closeDialog = function()
-    {
-        dialog.removeEventListener( "click", closeDialog );
-        dialog.classList.remove( "visible" );
+    // prepare view
 
-        setTimeout( () => {
-            if ( dialog.parentNode )
-                container.removeChild( dialog );
-        }, 1000 );
-    };
+    slocum.TemplateService.render( "notificationView", dialog, { title: title, content: body }).then(() => {
 
-    dialog.addEventListener( "click", closeDialog );
+        container.appendChild( dialog );
+        dialog.classList.add( "visible" );
 
-    // remove after a delay
+        const closeDialog = function()
+        {
+            dialog.removeEventListener( "click", closeDialog );
+            dialog.classList.remove( "visible" );
 
-    setTimeout( closeDialog, 5000 );
+            setTimeout( () => {
+                if ( dialog.parentNode )
+                    container.removeChild( dialog );
+            }, 1000 );
+        };
+
+        dialog.addEventListener( "click", closeDialog );
+
+        // remove after a delay
+
+        setTimeout( closeDialog, 5000 );
+    });
 }
