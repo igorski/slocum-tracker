@@ -5,3 +5,5 @@ src/js/handlebars/*
 *.iml
 *.DS_Store
 Thumbs.db
+package-lock.json
+
