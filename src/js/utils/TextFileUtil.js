@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2018 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -107,10 +107,12 @@ module.exports = {
 
             if ( line.indexOf( key ) > -1 ) {
 
+                const keyValue = line.split( key )[ 1 ];
+
                 if ( typeof fallbackValue === "number" )
-                    return parseFloat( line.replace( key, "" ));
+                    return parseFloat( keyValue );
                 else
-                    return line.replace( key, "" );
+                    return keyValue.toString().trim();
             }
         }
         return fallbackValue;
