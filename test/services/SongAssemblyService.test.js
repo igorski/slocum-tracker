@@ -415,4 +415,26 @@ describe( "SongAssemblyService", () =>
         assert.deepEqual( song, importedFile,
             "expected imported file to equal the source Song properties" );
     });
+
+    it( "should be able to disassemble a header file back into a Slocum Tracker song and back and forth", () => {
+
+        const song = SongHelper.createRandomSong();
+
+        const exportedFile = SongAssemblyService.assemble( song );
+        const importedSong = SongAssemblyService.disassemble( exportedFile );
+
+        // align properties that could not be restored through assembly process
+        importedSong.id            = song.id;
+        importedSong.meta.modified = song.meta.modified; // this can be a few ms off ;)
+
+        const assembledImportedSong = SongAssemblyService.assemble( importedSong );
+        const exportImportedSong    = SongAssemblyService.disassemble( assembledImportedSong );
+
+        // align properties that could not be restored through assembly process
+        exportImportedSong.id            = song.id;
+        exportImportedSong.meta.modified = song.meta.modified; // this can be a few ms off ;)
+
+        assert.deepEqual( song, exportImportedSong,
+            "expected imported file to equal the source Song properties" );
+    });
 });
