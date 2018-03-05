@@ -403,20 +403,23 @@ describe( "SongAssemblyService", () =>
         const song = SongHelper.createRandomSong();
 
         const exportedFile = SongAssemblyService.assemble( song );
-        const importedFile = SongAssemblyService.disassemble( exportedFile );
+        const importedSong = SongAssemblyService.disassemble( exportedFile );
 
-        assert.ok( typeof importedFile === "object",
+        assert.ok( typeof importedSong === "object",
             "expected imported file to be converted from String to an Object" );
 
         // align properties that could not be restored through assembly process
-        importedFile.id            = song.id;
-        importedFile.meta.modified = song.meta.modified; // this can be a few ms off ;)
+        // or that lose resolution (e.g. timestamps few milliseconds off)
+        importedSong.id            = song.id;
+        importedSong.meta.created  = song.meta.created;
+        importedSong.meta.modified = song.meta.modified;
 
-        assert.deepEqual( song, importedFile,
+        assert.deepEqual( song, importedSong,
             "expected imported file to equal the source Song properties" );
     });
 
-    it( "should be able to disassemble a header file back into a Slocum Tracker song and back and forth", () => {
+    it( "should be able to disassemble a header file back into a Slocum Tracker song and back and forth " +
+        "without loss of data", () => {
 
         const song = SongHelper.createRandomSong();
 
@@ -424,15 +427,18 @@ describe( "SongAssemblyService", () =>
         const importedSong = SongAssemblyService.disassemble( exportedFile );
 
         // align properties that could not be restored through assembly process
+        // or that lose resolution (e.g. timestamps few milliseconds off)
         importedSong.id            = song.id;
-        importedSong.meta.modified = song.meta.modified; // this can be a few ms off ;)
+        importedSong.meta.created  = song.meta.created;
+        importedSong.meta.modified = song.meta.modified;
 
         const assembledImportedSong = SongAssemblyService.assemble( importedSong );
         const exportImportedSong    = SongAssemblyService.disassemble( assembledImportedSong );
 
         // align properties that could not be restored through assembly process
         exportImportedSong.id            = song.id;
-        exportImportedSong.meta.modified = song.meta.modified; // this can be a few ms off ;)
+        exportImportedSong.meta.created  = song.meta.created;
+        exportImportedSong.meta.modified = song.meta.modified;
 
         assert.deepEqual( song, exportImportedSong,
             "expected imported file to equal the source Song properties" );
