@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2018 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -155,10 +155,13 @@ function handleSongOpenClick( aEvent )
 
 function handleReset( aEvent )
 {
-    if ( confirm( "Are you sure you want to reset, you will lose all changes and undo history" )) {
-        slocum.activeSong = slocum.SongModel.createSong();
-        Pubsub.publish( Messages.SONG_LOADED, slocum.activeSong );
-    }
+    Pubsub.publish( Messages.CONFIRM, {
+        message:  "Are you sure you want to reset, you will lose all changes and undo history",
+        confirm: () => {
+            slocum.activeSong = slocum.SongModel.createSong();
+            Pubsub.publish( Messages.SONG_LOADED, slocum.activeSong );
+        }
+    });
 }
 
 function handleImport( aEvent )

@@ -40,6 +40,23 @@ ul {
   /* E.O. sticky footer magic */
 }
 
+#blind {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,.5);
+  z-index: 400; // below overlays (see mixins.less)
+  display: none;
+}
+
+.blind {
+  #blind {
+    display: block;
+  }
+}
+
 /* standard width : desktop / large tablet */
 
 @media screen and ( min-width: @app-width )
@@ -110,4 +127,5 @@ ul {
 @import url( "songs.less" );
 @import url( "main.less" );
 @import url( "hats.less" );
+@import url( "dialogWindow.less" );
 @import url( "footer.less" );

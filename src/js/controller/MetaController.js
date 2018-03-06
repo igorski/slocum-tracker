@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2018 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -128,16 +128,18 @@ function handleChange( aEvent )
     {
         if ( SongUtil.hasContent( slocum.activeSong ))
         {
-            if ( confirm( "You are about to change song tuning, this means all existing notes" +
-                "that aren't available in the new tuning will be removed. Are you sure?" ))
-            {
-                SongUtil.sanitizeForTuning( slocum.activeSong, TIA.table.tunings[ newTuning ]);
-                meta.tuning = newTuning;
-                Pubsub.publish( Messages.REFRESH_SONG, slocum.activeSong );
-            }
-            else {
-                Form.setSelectedOption( tuning, meta.tuning );
-            }
+            Pubsub.publish( Messages.CONFIRM, {
+                message:  "You are about to change song tuning, this means all existing notes " +
+                           "that aren't available in the new tuning will be removed. Are you sure?",
+                confirm: () => {
+                    SongUtil.sanitizeForTuning( slocum.activeSong, TIA.table.tunings[ newTuning ]);
+                                    meta.tuning = newTuning;
+                                    Pubsub.publish( Messages.REFRESH_SONG, slocum.activeSong );
+                },
+                cancel: () => {
+                    Form.setSelectedOption( tuning, meta.tuning );
+                }
+            });
         }
         else {
             meta.tuning = newTuning;

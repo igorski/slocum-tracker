@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2018 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -31,6 +31,10 @@ module.exports =
     REFRESH_SONG                 : 4,
     PATTERN_AMOUNT_UPDATED       : 5,
     DISPLAY_HELP                 : 6,
-    CLOSE_OVERLAYS               : 7, // payload is optional Controller that should not close its overlay
-    OPEN_ADVANCED_PATTERN_EDITOR : 8
+    CLOSE_OVERLAYS               : 7,  // payload is optional Controller that should not close its overlay
+    OPEN_ADVANCED_PATTERN_EDITOR : 8,
+    SHOW_BLIND                   : 9,
+    HIDE_BLIND                   : 10,
+    SHOW_DIALOG                  : 11, // payload is Object {{ message: string, title: string }}
+    CONFIRM                      : 12  // payload is Object {{ message: string, title: string, confirm: Function, cancel: Function }}
 };

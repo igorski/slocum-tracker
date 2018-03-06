@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2018 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -21,6 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 const SongModel                       = require( "./model/SongModel" );
+const DialogWindowController          = require( "./controller/DialogWindowController" );
 const HatController                   = require( "./controller/HatController" );
 const HelpController                  = require( "./controller/HelpController" );
 const KeyboardController              = require( "./controller/KeyboardController" );
@@ -62,6 +63,7 @@ const Pubsub                          = require( "pubsub-js" );
 
         KeyboardController.init( slocum );
         MenuController.init();
+        DialogWindowController.init( container, slocum );
         SongController.init( container.querySelector( "#songSection" ), slocum, KeyboardController );
         MetaController.init( container.querySelector( "#metaSection" ), slocum, KeyboardController );
         NoteEntryController.init( container, slocum, KeyboardController );
@@ -77,7 +79,9 @@ const Pubsub                          = require( "pubsub-js" );
 
     // subscribe to pubsub system to receive and broadcast messages across the application
 
-    Pubsub.subscribe( Messages.LOAD_SONG, handleBroadcast );
+    Pubsub.subscribe( Messages.LOAD_SONG,  handleBroadcast );
+    Pubsub.subscribe( Messages.HIDE_BLIND, handleBroadcast );
+    Pubsub.subscribe( Messages.SHOW_BLIND, handleBroadcast );
 
 })( self );
 
@@ -90,11 +94,18 @@ function handleBroadcast( type, payload )
         case Messages.LOAD_SONG:
 
             const song = slocum.SongModel.getSongById( payload );
-
             if ( song ) {
                 slocum.activeSong = ObjectUtil.clone( song );
                 Pubsub.publish( Messages.SONG_LOADED, song );
             }
+            break;
+
+        case Messages.SHOW_BLIND:
+            document.body.classList.add( "blind" );
+            break;
+
+        case Messages.HIDE_BLIND:
+            document.body.classList.remove( "blind" );
             break;
     }
 }
