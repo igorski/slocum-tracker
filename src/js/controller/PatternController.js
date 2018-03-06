@@ -23,7 +23,6 @@
 "use strict";
 
 const Config         = require( "../config/Config" );
-const Pubsub         = require( "pubsub-js" );
 const Messages       = require( "../definitions/Messages" );
 const SelectionModel = require( "../model/SelectionModel" );
 const StateModel     = require( "../model/StateModel" );
@@ -32,6 +31,7 @@ const Form           = require( "../utils/Form" );
 const NoteUtil       = require( "../utils/NoteUtil" );
 const ObjectUtil     = require( "../utils/ObjectUtil" );
 const PatternUtil    = require( "../utils/PatternUtil" );
+const Pubsub         = require( "pubsub-js" );
 
 /* private properties */
 
@@ -123,8 +123,8 @@ const PatternController = module.exports =
             highlightActiveStep();
         });
 
-        currentPositionInput.value     = ( activePattern + 1 ).toString();
-        totalPatternsDisplay.innerHTML = slocum.activeSong.patterns.length.toString();
+        currentPositionInput.value     = activePattern.toString();
+        totalPatternsDisplay.innerHTML = ( slocum.activeSong.patterns.length - 1 ).toString();
 
         Form.setSelectedOption( stepSelection, pattern.steps );
         Form.setSelectedOption( channel1attenuation, pattern.channel1attenuation );
@@ -565,10 +565,9 @@ function handleCurrentPositionInteraction( e ) {
             let value = Math.min( parseInt( element.value, 10 ), slocum.activeSong.patterns.length );
 
             if ( isNaN( value ))
-                value = activePattern + 1;
+                value = activePattern;
 
             element.value = value;
-            --value; // normalize to Array indices (0 == first, not 1)
 
             if ( value !== activePattern ) {
                 activePattern = value;
