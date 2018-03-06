@@ -137,7 +137,7 @@ function handleSave( aEvent )
 {
     let song = slocum.activeSong;
 
-    if ( isValid( song )) {
+    if ( SongUtil.isValid( song )) {
         slocum.SongModel.saveSong( song );
         Pubsub.publish( Messages.SHOW_FEEDBACK, "Song '" + song.meta.title + "' saved" );
     }
@@ -194,7 +194,7 @@ function handleImport( aEvent )
 
             // rudimentary check if we're dealing with a valid song
 
-            if ( isValid( song ))
+            if ( SongUtil.isValid( song ))
             {
                 slocum.SongModel.saveSong( song );
                 slocum.activeSong = song;
@@ -208,52 +208,8 @@ function handleImport( aEvent )
 
 function handleExport( aEvent )
 {
-    const song = slocum.activeSong;
-
-    if ( isValid( song ))
-    {
-        const asm = SongAssemblyService.assemble( song );
-
-        // download file to disk
-
-        const pom = document.createElement( "a" );
-        pom.setAttribute( "href", "data:text/plain;charset=utf-8," + encodeURIComponent( asm ));
-        pom.setAttribute( "download", "song.h" );
-
-        if ( document.createEvent ) {
-            const event = document.createEvent( "MouseEvents" );
-            event.initEvent( "click", true, true );
-            pom.dispatchEvent( event );
-        }
-        else {
-            pom.click();
-        }
-    }
-}
-
-/**
- * validates whether the current state of the song is
- * eligible for saving / exporting
- *
- * @private
- * @param song
- */
-function isValid( song )
-{
-    let hasContent = SongUtil.hasContent( song );
-
-    if ( !hasContent ) {
-        Pubsub.publish( Messages.SHOW_ERROR, "Song has no pattern content!" );
-        return false;
-    }
-
-    if ( song.meta.author.length === 0 || song.meta.title.length === 0 )
-        hasContent = false;
-
-    if ( !hasContent )
-        Pubsub.publish( Messages.SHOW_ERROR, "Song has no title or author name, take pride in your work!" );
-
-    return hasContent;
+    if ( SongUtil.isValid( slocum.activeSong ))
+        Pubsub.publish( Messages.OPEN_EXPORT_WINDOW );
 }
 
 function handleSongDeleteClick( aEvent )

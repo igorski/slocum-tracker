@@ -36,5 +36,6 @@ module.exports =
     SHOW_BLIND                   : 9,
     HIDE_BLIND                   : 10,
     SHOW_DIALOG                  : 11, // payload is Object {{ message: string, title: string }}
-    CONFIRM                      : 12  // payload is Object {{ message: string, title: string, confirm: Function, cancel: Function }}
+    CONFIRM                      : 12, // payload is Object {{ message: string, title: string, confirm: Function, cancel: Function }}
+    OPEN_EXPORT_WINDOW           : 13
 };

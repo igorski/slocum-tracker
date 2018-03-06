@@ -32,6 +32,7 @@ const NotificationController          = require( "./controller/NotificationContr
 const PatternController               = require( "./controller/PatternController" );
 const AdvancedPatternEditorController = require( "./controller/AdvancedPatternEditorController" );
 const SongController                  = require( "./controller/SongController" );
+const SongExportController            = require( "./controller/SongExportController" );
 const ObjectUtil                      = require( "./utils/ObjectUtil" );
 const TemplateService                 = require( "./services/TemplateService" );
 const Messages                        = require( "./definitions/Messages" );
@@ -75,6 +76,7 @@ const Pubsub                          = require( "pubsub-js" );
         AdvancedPatternEditorController.init( container, slocum, KeyboardController );
         HelpController.init( container.querySelector( "#helpSection" ), slocum );
         HatController.init( container.querySelector( "#hatSection" ), slocum, KeyboardController );
+        SongExportController.init( container, slocum, KeyboardController );
     });
 
     // subscribe to pubsub system to receive and broadcast messages across the application

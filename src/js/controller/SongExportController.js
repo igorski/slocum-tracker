@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2018 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,18 +22,19 @@
  */
 "use strict";
 
-const Messages       = require( "../definitions/Messages" );
-const PatternFactory = require( "../factory/PatternFactory" );
-const ObjectUtil     = require( "../utils/ObjectUtil" );
-const Form           = require( "../utils/Form" );
-const Pubsub         = require( "pubsub-js" );
+const SongAssemblyService = require( "../services/SongAssemblyService" );
+const Messages            = require( "../definitions/Messages" );
+const SongUtil            = require( "../utils/SongUtil" );
+const ObjectUtil          = require( "../utils/ObjectUtil" );
+const Form                = require( "../utils/Form" );
+const Pubsub              = require( "pubsub-js" );
 
 /* private properties */
 
 let container, element, slocum, keyboardController;
-let firstPattern, lastPattern, firstChannel, lastChannel, pastePattern;
+let firstPattern, lastPattern;
 
-const AdvancedPatternEditorController = module.exports =
+const SongExportController = module.exports =
 {
     /**
      * initialize ModuleParamController
@@ -48,17 +49,14 @@ const AdvancedPatternEditorController = module.exports =
         slocum             = slocumRef;
         keyboardController = keyboardControllerRef;
 
-        slocum.TemplateService.renderAsElement( "advancedPatternEditor" ).then(( template ) => {
+        slocum.TemplateService.renderAsElement( "songExport" ).then(( template ) => {
 
             element = template;
 
             // grab view elements
 
-            firstPattern = element.querySelector( "#apeFirstPattern" );
-            lastPattern  = element.querySelector( "#apeLastPattern" );
-            firstChannel = element.querySelector( "#apeFirstChannel" );
-            lastChannel  = element.querySelector( "#apeLastChannel" );
-            pastePattern = element.querySelector( "#apePastePattern" );
+            firstPattern = element.querySelector( "#exportStartPattern" );
+            lastPattern  = element.querySelector( "#exportLastPattern" );
 
             // add listeners
 
@@ -69,7 +67,7 @@ const AdvancedPatternEditorController = module.exports =
         // subscribe to messaging system
 
         [
-            Messages.OPEN_ADVANCED_PATTERN_EDITOR,
+            Messages.OPEN_EXPORT_WINDOW,
             Messages.CLOSE_OVERLAYS
 
         ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
@@ -101,13 +99,13 @@ function handleBroadcast( type, payload ) {
 
     switch ( type ) {
 
-        case Messages.OPEN_ADVANCED_PATTERN_EDITOR:
+        case Messages.OPEN_EXPORT_WINDOW:
             handleOpen();
             break;
 
         case Messages.CLOSE_OVERLAYS:
 
-            if ( payload !== AdvancedPatternEditorController )
+            if ( payload !== SongExportController )
                 handleClose();
             break;
     }
@@ -118,25 +116,22 @@ function handleBroadcast( type, payload ) {
  */
 function handleOpen() {
 
-    Pubsub.publishSync( Messages.CLOSE_OVERLAYS, AdvancedPatternEditorController ); // close open overlays
+    Pubsub.publishSync( Messages.CLOSE_OVERLAYS, SongExportController ); // close open overlays
+    Pubsub.publish( Messages.SHOW_BLIND );
 
     const song             = slocum.activeSong;
     const amountOfPatterns = song.patterns.length;
 
     firstPattern.setAttribute( "max", amountOfPatterns );
     lastPattern.setAttribute ( "max", amountOfPatterns );
-    pastePattern.setAttribute( "max", amountOfPatterns );
 
-    firstPattern.value =
-    lastPattern.value  = 0;
-    firstChannel.value = 0;
-    lastChannel.value  = 1;
-    pastePattern.value = amountOfPatterns - 1;
+    firstPattern.value = 0;
+    lastPattern.value  = amountOfPatterns - 1;
 
     Form.focus( firstPattern );
 
     keyboardController.setBlockDefaults( false );
-    keyboardController.setListener( AdvancedPatternEditorController );
+    keyboardController.setListener( SongExportController );
 
     if ( !element.parentNode )
         container.appendChild( element );
@@ -154,47 +149,32 @@ function handleClose() {
 
 function handleConfirm() {
 
-    const song            = slocum.activeSong;
-    const patterns        = song.patterns;
-    const maxPatternValue = patterns.length - 1;
-    const maxChannelValue = 1; // channel 1 == 0, channel 2 == 1
+    const song  = slocum.activeSong;
+    const first = Math.max( 0, Math.min( num( firstPattern ), song.patterns.length - 1 ));
+    const last  = Math.min( song.patterns.length - 1, num( lastPattern ));
 
-    const firstPatternValue = Math.min( maxPatternValue, num( firstPattern ));
-    const lastPatternValue  = Math.min( maxPatternValue, num( lastPattern ));
-    const firstChannelValue = Math.min( maxChannelValue, num( firstChannel ));
-    const lastChannelValue  = Math.min( maxChannelValue, num( lastChannel ));
-    const pastePatternValue = Math.min( maxPatternValue, num( pastePattern )) + 1; // +1 as we insert after this index
+    const clone    = ObjectUtil.clone( song );
+    clone.patterns = clone.patterns.splice( first, ( last - first ) + 1 );
 
-    const patternsToClone = patterns.slice( firstPatternValue, lastPatternValue + 1 );
+    if ( SongUtil.isValid( clone ))
+    {
+        const asm = SongAssemblyService.assemble( clone );
 
-    // splice the pattern list at the insertion point, head will contain
-    // the front of the list, tail the end of the list, and inserted will contain the cloned content
+        // download file to disk
 
-    const patternsHead     = song.patterns;
-    const patternsTail     = patterns.splice( pastePatternValue );
-    const patternsInserted = [];
+        const pom = document.createElement( "a" );
+        pom.setAttribute( "href", "data:text/plain;charset=utf-8," + encodeURIComponent( asm ));
+        pom.setAttribute( "download", "song.h" );
 
-    // clone the patterns into the insertion list
-
-    patternsToClone.forEach(( pattern, patternIndex ) => {
-
-        const clonedPattern = PatternFactory.createEmptyPattern( pattern.steps );
-
-        for ( let i = firstChannelValue; i <= lastChannelValue; ++i )
-            clonedPattern.channels[ i ] = ObjectUtil.clone( pattern.channels[ i ]);
-
-        patternsInserted.push( clonedPattern );
-    });
-
-    // commit the changes
-
-    song.patterns = patternsHead.concat( patternsInserted, patternsTail );
-
-    // update UI
-
-    Pubsub.publish( Messages.REFRESH_SONG );
-    Pubsub.publish( Messages.PATTERN_AMOUNT_UPDATED );
-
+        if ( document.createEvent ) {
+            const event = document.createEvent( "MouseEvents" );
+            event.initEvent( "click", true, true );
+            pom.dispatchEvent( event );
+        }
+        else {
+            pom.click();
+        }
+    }
     handleClose();
 }
 

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2018 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,9 +23,11 @@
 "use strict";
 
 const PatternFactory = require( "../factory/PatternFactory" );
+const Messages       = require( "../definitions/Messages.js" );
 const NoteUtil       = require( "./NoteUtil" );
+const Pubsub         = require( "pubsub-js" );
 
-module.exports =
+const SongUtil = module.exports =
 {
     /**
      * validates whether the song has any pattern content
@@ -38,11 +40,11 @@ module.exports =
     {
         let hasContent = false;
 
-        song.patterns.forEach( function( songPattern )
+        song.patterns.forEach(( songPattern ) =>
         {
-            songPattern.channels.forEach( function( channel )
+            songPattern.channels.forEach(( channel ) =>
             {
-                channel.forEach( function( pattern )
+                channel.forEach(( pattern ) =>
                 {
                     if ( pattern && pattern.sound ) {
                         hasContent = true;
@@ -50,6 +52,30 @@ module.exports =
                 });
             });
         });
+        return hasContent;
+    },
+
+    /**
+     * validates whether the current state of the song is
+     * eligible for saving / exporting
+     *
+     * @param {Object} song
+     */
+    isValid( song )
+    {
+        let hasContent = SongUtil.hasContent( song );
+
+        if ( !hasContent ) {
+            Pubsub.publish( Messages.SHOW_ERROR, "Song has no pattern content!" );
+            return false;
+        }
+
+        if ( song.meta.author.length === 0 || song.meta.title.length === 0 )
+            hasContent = false;
+
+        if ( !hasContent )
+            Pubsub.publish( Messages.SHOW_ERROR, "Song has no title or author name, take pride in your work!" );
+
         return hasContent;
     },
 
@@ -63,9 +89,9 @@ module.exports =
     {
         let i, j, p, ps, t, found, remove;
 
-        song.patterns.forEach( function( songPattern )
+        song.patterns.forEach(( songPattern ) =>
         {
-            songPattern.channels.forEach( function( channel )
+            songPattern.channels.forEach(( channel ) =>
             {
                 i = channel.length;
                 while ( i-- )
