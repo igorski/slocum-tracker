@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2018 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -172,12 +172,12 @@ function convertPatternToAsm( patterns, tuning )
     const patternArrayH  = []; // all high volume patterns
     const patternArrayL  = []; // all low volume patterns
 
-    patterns.forEach( function( pattern )
+    patterns.forEach(( pattern ) =>
     {
         amountOfSteps = pattern.steps;
         increment     = 32 / amountOfSteps; // sequencer works in 32 steps, Slocum Tracker patterns can be 16 steps
 
-        pattern.channels.forEach( function( channel, channelIndex )
+        pattern.channels.forEach(( channel, channelIndex ) =>
         {
             attenuate         = pattern[ "channel" + ( channelIndex + 1 ) + "attenuation" ];
             patternWordString = DECLARATION_WORD;
@@ -205,6 +205,7 @@ function convertPatternToAsm( patterns, tuning )
                     // if no sound code was found, we're probably dealing with an imported
                     // song created outside of Slocum Tracker (with less strict tuning restrictions)
                     // try to find a code outside of the determined tuning
+
                     if ( code === null ) {
                         const tuning = TIA.getTuningBySound( step );
 
@@ -216,7 +217,7 @@ function convertPatternToAsm( patterns, tuning )
                 // at beginning of each quarter measure, prepare accents list
 
                 if ( idx % 8 === 0 )
-                    accents = "\n" + DECLARATION_BYTE + "%";
+                    accents = `\n${DECLARATION_BYTE}%`;
 
                 // every two 32nd notes, prefix output with byte declaration
 
@@ -255,7 +256,7 @@ function convertPatternToAsm( patterns, tuning )
 
                 if ( !patternExisted ) {
                     patternIndex = 128 + patternArrayL.length;
-                    patternArrayL.push( patternWordString + " ; " + patternIndex + "\n" );
+                    patternArrayL.push( `${patternWordString} ; ${patternIndex}\n` );
                 }
                 else
                     patternIndex = 128 + existingPatternIndex;
@@ -267,7 +268,7 @@ function convertPatternToAsm( patterns, tuning )
 
                 if ( !patternExisted ) {
                     patternIndex = patternArrayH.length;
-                    patternArrayH.push( patternWordString + " ; " + patternIndex + "\n" );
+                    patternArrayH.push( `${patternWordString} ; ${patternIndex}\n` );
                 }
                 else
                     patternIndex = existingPatternIndex;
@@ -276,9 +277,9 @@ function convertPatternToAsm( patterns, tuning )
             // write into the channel sequences
 
             if ( channelIndex === 0 )
-                out.channel1sequence += DECLARATION_BYTE + patternIndex + "\n";
+                out.channel1sequence += `${DECLARATION_BYTE}${patternIndex}\n`;
             else
-                out.channel2sequence += DECLARATION_BYTE + patternIndex + "\n";
+                out.channel2sequence += `${DECLARATION_BYTE}${patternIndex}\n`;
         });
     });
 
@@ -291,13 +292,19 @@ function convertPatternToAsm( patterns, tuning )
 
     let value, replacement;
 
-    Object.keys( cachedPatterns ).forEach( function( key, index )
+    Object.keys( cachedPatterns ).forEach(( key, index ) =>
     {
         // replace hashed value with a shorthand (otherwise code won't compile, go figure!)
         // note we use dot notation so the pattern declaration will be local to the file
 
-        replacement = ".Pattern" + ( index + 1 );
-        value = cachedPatterns[ key ].replace( key, replacement );
+        // format will be .Pattern{num}T
+
+        replacement = `.Pattern${( index + 1 )}T`;
+
+        // note we add a comment "; DECLARATION {name}" to the pattern definition so our
+        // tools can do nifty lookups when replacing contents for compressive duties
+
+        value = cachedPatterns[ key ].replace( key, `${replacement}; DECLARATION ${replacement}` );
         out.patterns += value;
 
         // replace usages of hashed value with new short hand
@@ -320,7 +327,7 @@ function convertHatPattern( pattern )
             if ( i > 0 )
                 asmPattern += "\n";
 
-            asmPattern += ( DECLARATION_BYTE + "%" );
+            asmPattern += ( `${DECLARATION_BYTE}%` );
         }
         asmPattern += pattern[ i ];
     }
@@ -382,7 +389,7 @@ function convertAsmToPatterns(
             patternWordList.forEach(( patternName, wordIndex ) => {
 
                 const sanitizedName = TextFileUtil.stripTrailingComment( patternName ).trim().split( " " )[ 0 ];
-                const patternEvents = TextFileUtil.getLastLineNumForText( list, sanitizedName, true ) + 1;
+                const patternEvents = TextFileUtil.getLastLineNumForText( list, sanitizedName ) + 1;
 
                 for ( let pi = 0, pl = patternEvents; pl < list.length; ++pi, ++pl ) {
 
