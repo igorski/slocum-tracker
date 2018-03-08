@@ -50,15 +50,21 @@ Depending on your operating system, execute the appropriate of the following com
 
 In *Windows* from the Command Prompt:
 
-    dasm songmain.asm -f3 -osong.bin
+```
+dasm songmain.asm -f3 -osong.bin
+```
     
 On *Mac OS X* from Terminal command line:
 
-    ./dasm.Darwin.x86 songmain.asm -f3 -osong.bin
+```
+./dasm.Darwin.x86 songmain.asm -f3 -osong.bin
+```
     
 On *Linux* from Terminal command line:
 
-    ./dasm.Linux.x86 songmain.asm -f3 -osong.bin
+```
+./dasm.Linux.x86 songmain.asm -f3 -osong.bin
+```
     
 And behold, a file "_song.bin_" containing your awesome track ready for playback has been generated!
 
@@ -71,16 +77,22 @@ Build instructions
 
 To build slocum-tracker first resolve all dependencies using Node:
 
-    npm install
+```
+npm install
+```
     
 After which a development mode can be started (which conveniently opens your browser and points it to the correct
 location) using the following Grunt command:
 
-    grunt dev
+```
+grunt dev
+```
     
 A production build (minimizes CSS and JS output size) can be created using the following Grunt command:
 
-    grunt build
+```
+grunt build
+```
     
 After which the build output is available in the _./dist/prod_-folder.
     
@@ -89,26 +101,25 @@ Unit testing
 
 Unit tests are run via Mocha, which is installed as a dependency. You can run the tests by using:
 
-    npm test
-    
+```
+npm test
+```
+
 Unit tests go in the _./test_-folder. The file name for a unit test must be equal to the file it is testing, but contain
 the suffix "_.test_", e.g. _Functions.js_ will have a test file _Functions.test.js_.
 
 Tools for using Slocum Tracker music in your Atari 2600 project
 ---------------------------------------------------------------
 
-If you wish to use multiple Slocum Tracker songs within an Atari 2600 project and you
-want to avoid pattern duplication across tracks, you can use the utility called _optimizer.js_
-in the _./tools/_-folder.
+If you wish to use multiple Slocum Tracker songs within an Atari 2600 project and you want to avoid pattern duplication
+across tracks, you can use the utility called _optimizer.js_ in the _./tools/_-folder.
 
-The utility will scan a input folders for _.h_-files which should be
-exported Slocum Tracker songs. It will read all pattern declarations within
-each song and compare them with other songs to detect whether there are
-duplicate patterns defined across songs.
+The utility will scan a input folders for _.h_-files which should be exported Slocum Tracker songs. It will read all
+pattern declarations within each song and compare them with other songs to detect whether there are duplicate patterns
+defined across songs.
 
-The duplicate patterns are extracted and stored in a separate file, and
-the input song pattern names are transformed to reference the shared file's
-pattern names.
+The duplicate patterns are extracted and stored in a separate file, and the input song pattern names are transformed to
+reference the shared file's pattern names.
 
 You can run the utility via CLI using Node.js. Example usage:
 
@@ -116,21 +127,21 @@ You can run the utility via CLI using Node.js. Example usage:
 node optimizer.js i=/path/to/folder_containing_exported_slocum_tracker_files
 ```
 
-Where the output will be created in a directory called _./out_ which will
-contain generated file _shared.h_ (describing the patterns that were
-duplicated across all input files), as well as all the transformed input songs.
+Where the output will be created in a directory called _./optimized_ which will contain generated file _shared.h_ (describing
+the patterns that were duplicated across all input files), as well as all the transformed input songs.
 
 If you wish to use these files in your project:
 
- * copy the contents of the _./out_-folder into your project source
+ * copy the contents of the _./optimized_-folder into your project source
  * include _shared.h_ in your custom Music Kit code
  * include all individual tracks
  
-Presto. This is the approach taken in the UT2600 game. Note that the
-transformed songs can safely be imported again into Slocum Tracker without
-loss of data.
+Presto. This is the approach taken in the UT2600 game. Note that the transformed songs can safely be imported again into
+Slocum Tracker without loss of data (note: upon subsequent resave of an imported optimized song, it is necessary to run
+the optimization code again).
 
 ROADMAP
 -------
 
-Slocum Trackers core should merge with [Efflux Tracker](https://github.com/igorski/efflux-tracker). This will enable the synthesis of actual sound (though it should not attempt to mimic the TIA!!), optimized interface and support for Web MIDI.
+Slocum Trackers core should merge with [Efflux Tracker](https://github.com/igorski/efflux-tracker). This will enable the
+synthesis of actual sound (though it should not attempt to mimic the TIA!!), optimized interface and support for Web MIDI.

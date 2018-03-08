@@ -79,8 +79,7 @@ const SongController = module.exports =
         });
 
         // add message listeners
-        Pubsub.subscribe( Messages.CLOSE_OVERLAYS, function( type, payload )
-        {
+        Pubsub.subscribe( Messages.CLOSE_OVERLAYS, ( type, payload ) => {
             if ( payload !== SongController )
                 handleClose()
         });
@@ -114,8 +113,7 @@ function handleLoad( aEvent )
     disposeHandler();
     handler = new EventHandler();
 
-    songs.forEach( function( song )
-    {
+    songs.forEach(( song ) => {
         li = document.createElement( "li" );
         li.setAttribute( "data-id", song.id );
         li.innerHTML = "<span class='title'>" + song.meta.title + ", by " + song.meta.author + "</span>" +
@@ -221,10 +219,13 @@ function handleSongDeleteClick( aEvent )
     if ( !song )
         return;
 
-    if ( confirm( "Are you sure you want to delete '" + song.meta.title + "'? This cannot be undone!" )) {
-        songModel.deleteSong( song );
-        handleLoad( null ); // refreshes view
-    }
+    Pubsub.publish( Messages.CONFIRM, {
+        message: `Are you sure you want to delete "${song.meta.title}"? This cannot be undone!`,
+        confirm: () => {
+            songModel.deleteSong( song );
+            handleLoad( null ); // refreshes view
+        }
+    });
 }
 
 function handleClose()

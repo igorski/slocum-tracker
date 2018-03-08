@@ -443,4 +443,130 @@ describe( "SongAssemblyService", () =>
         assert.deepEqual( song, exportImportedSong,
             "expected imported file to equal the source Song properties" );
     });
+
+    it( "should be able to disassemble a header file that was optimized back into a Slocum Tracker song", () => {
+
+        const optimizedSong = `
+;-------------------------------------------------------------
+; @title "foo"
+; @author bar
+; @created 12 Sep 2016 12:07:07.263
+; @tuning 2
+;
+
+;-------------------------------------------------------------
+; CONFIGURATION
+;-------------------------------------------------------------
+; tempo range 1 (fast) - 10 (slow)
+
+TEMPODELAY equ 3
+
+; global normalization of sounds
+
+soundTurnArray
+    byte 8, 0, 5, 9
+    byte 0, 6, 4, 0
+
+;-------------------------------------------------------------
+; SOUND TYPES
+
+soundTypeArray
+    byte 4, 6, 7, 8
+    byte 15, 12, 1, 14
+
+;-------------------------------------------------------------
+; HATS
+
+hatPattern
+    byte %10001000
+    byte %10001000
+    byte %10001000
+    byte %10001000
+
+HATSTART equ 9
+
+HATVOLUME equ 5
+HATPITCH equ 30
+HATSOUND equ 8
+
+;-------------------------------------------------------------
+; SONG SEQUENCE
+
+song1
+    byte 0
+
+    byte 255    ; end / loop
+
+song2
+    byte 128
+
+    byte 255    ; end / loop
+
+;-------------------------------------------------------------
+; SONG MEASURES
+;
+
+patternArrayH
+    word SHARED_Pattern_1T, .Pattern2T, .Pattern2T, .Pattern2T ; 0
+
+
+; 2. Lower volume patterns (note index starts at 128)
+
+patternArrayL
+    word .Pattern2T, SHARED_Pattern_1T, .Pattern2T, .Pattern2T ; 128
+
+
+;-------------------------------------------------------------
+; PATTERNS:
+
+.OPTIMIZED_SHARED_Pattern_1T
+    byte %10011110, %10011110
+    byte %10011110, %10011110
+    byte %10011110, %10011110
+    byte %10011110, %10011110
+
+    byte %00000000
+
+.Pattern2T
+    byte %01100000, %01100000
+    byte %01100000, %01100000
+    byte %01100000, %01100000
+    byte %01100000, %01100000
+
+    byte %11111111
+`;
+
+        const song = SongAssemblyService.disassemble( optimizedSong );
+
+        // expect 8 non-accented kicks and 24 accented hats
+        const lChannel = song.patterns[0].channels[0];
+
+        for ( let i = 0; i < 8; ++i ) {
+            assert.strictEqual( lChannel[ i ].sound, "KICK" );
+            assert.strictEqual( lChannel[ i ].accent, false );
+        }
+
+        for ( let i = 8; i < 32; ++i ) {
+            assert.strictEqual( lChannel[ i ].sound, "HAT" );
+            assert.strictEqual( lChannel[ i ].accent, true );
+        }
+
+        // expect 8 accented hats, 8 non-accented kicks and 16 accented hats
+        const rChannel = song.patterns[0].channels[1];
+
+        for ( let i = 0; i < 8; ++i ) {
+            assert.strictEqual( rChannel[ i ].sound, "HAT" );
+            assert.strictEqual( rChannel[ i ].accent, true );
+        }
+
+        for ( let i = 8; i < 16; ++i ) {
+            assert.strictEqual( rChannel[ i ].sound, "KICK" );
+            assert.strictEqual( rChannel[ i ].accent, false );
+        }
+
+        for ( let i = 16; i < 32; ++i ) {
+            assert.strictEqual( rChannel[ i ].sound, "HAT" );
+            assert.strictEqual( rChannel[ i ].accent, true );
+        }
+    });
 });

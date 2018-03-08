@@ -35,7 +35,7 @@ const MD5            = require( "md5" );
 
 const DECLARATION_WORD           = "    word ",
       DECLARATION_BYTE           = "    byte ",
-      DECLARATION_SHARED_PATTERN = ".SHARED_";
+      DECLARATION_SHARED_PATTERN = ".OPTIMIZED_";
 
 module.exports =
 {
@@ -148,7 +148,7 @@ module.exports =
                 out.meta.tuning = determineSongTuning( out.patterns );
         }
         catch ( e ) {
-            console.warn( "error occurred during disassembly", e.message );
+            console.error( "error occurred during disassembly", e.message );
         }
         return out;
     }
@@ -387,10 +387,13 @@ function convertAsmToPatterns(
 
             patternWordList.forEach(( patternName, wordIndex ) => {
 
-                // in case song file was processed by optimizer.js tool, we remove the shared keyword from the name
+                // in case song file was processed by optimizer.js tool, we add the shared keyword from the name
                 // so we can safely load this song back
 
-                const sanitizedName = TextFileUtil.stripTrailingComment( patternName.replace( DECLARATION_SHARED_PATTERN, "" ))
+                if ( patternName.indexOf( "SHARED_" ) > -1 )
+                    patternName = `${DECLARATION_SHARED_PATTERN}${patternName.trim()}`;
+
+                const sanitizedName = TextFileUtil.stripTrailingComment( patternName )
                                         .trim().split( " " )[ 0 ];
 
                 const patternEvents = TextFileUtil.getLastLineNumForText( list, sanitizedName, true ) + 1;
