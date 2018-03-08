@@ -6,10 +6,11 @@ const async            = require( "async" );
 const path             = require( "path" );
 const TextFileUtil     = require( "../src/js/utils/TextFileUtil" );
 
-const INPUT_FOLDER_KEY   = "i=";
-const PATTERN_DECLARATOR = ".Pattern";
-const PATTERN_CONTENT    = "    byte ";
-const OUTPUT_FOLDER      = `${process.cwd()}/out`;
+const INPUT_FOLDER_KEY       = "i=";
+const PATTERN_DECLARATOR     = ".Pattern";
+const SHARED_PATTERN_KEYWORD = ".SHARED_";
+const PATTERN_CONTENT        = "    byte ";
+const OUTPUT_FOLDER          = `${process.cwd()}/out`;
 let INPUT_FOLDER;
 
 process.argv.forEach(( val, index, array ) => {
@@ -273,7 +274,27 @@ function transformDuplicateInputs( duplicates ) {
 }
 
 function updatePatternName( fileContents, patternNameToReplace, newPatternName ) {
-    return fileContents.split( patternNameToReplace ).join( newPatternName );
+
+    const textLines = TextFileUtil.textToLineArray( fileContents );
+
+    // the line number at which the pattern word declarations start
+
+    const wordDeclarationIndex = TextFileUtil.getLineNumForText( textLines, "patternArrayH" );
+
+    // the line number at which the pattern contents are defined
+
+    const patternDeclarationIndex = TextFileUtil.getLineNumForText( textLines, "; PATTERNS:" );
+
+    for ( let i = wordDeclarationIndex; i < patternDeclarationIndex; ++i ) {
+        textLines[ i ] = textLines[ i ].split( patternNameToReplace).join( newPatternName );
+    }
+
+    for ( let i = patternDeclarationIndex; i < textLines.length; ++i ) {
+        textLines[ i ] = textLines[ i ].split( patternNameToReplace )
+            .join( `${SHARED_PATTERN_KEYWORD}${patternNameToReplace}` );
+    }
+
+    return textLines.join( "\n" );
 }
 
 /**

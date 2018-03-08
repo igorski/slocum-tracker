@@ -33,8 +33,9 @@ const TextFileUtil   = require( "../utils/TextFileUtil" );
 const TIA            = require( "../definitions/TIA" );
 const MD5            = require( "md5" );
 
-const DECLARATION_WORD = "    word ",
-      DECLARATION_BYTE = "    byte ";
+const DECLARATION_WORD           = "    word ",
+      DECLARATION_BYTE           = "    byte ",
+      DECLARATION_SHARED_PATTERN = ".SHARED_";
 
 module.exports =
 {
@@ -297,14 +298,12 @@ function convertPatternToAsm( patterns, tuning )
         // replace hashed value with a shorthand (otherwise code won't compile, go figure!)
         // note we use dot notation so the pattern declaration will be local to the file
 
-        // format will be .Pattern{num}T
+        // format will be .Pattern{num}T (so replace functions can distinguish between
+        // pattern numbers with single and multiple digits
 
         replacement = `.Pattern${( index + 1 )}T`;
 
-        // note we add a comment "; DECLARATION {name}" to the pattern definition so our
-        // tools can do nifty lookups when replacing contents for compressive duties
-
-        value = cachedPatterns[ key ].replace( key, `${replacement}; DECLARATION ${replacement}` );
+        value = cachedPatterns[ key ].replace( key, replacement );
         out.patterns += value;
 
         // replace usages of hashed value with new short hand
@@ -388,8 +387,13 @@ function convertAsmToPatterns(
 
             patternWordList.forEach(( patternName, wordIndex ) => {
 
-                const sanitizedName = TextFileUtil.stripTrailingComment( patternName ).trim().split( " " )[ 0 ];
-                const patternEvents = TextFileUtil.getLastLineNumForText( list, sanitizedName ) + 1;
+                // in case song file was processed by optimizer.js tool, we remove the shared keyword from the name
+                // so we can safely load this song back
+
+                const sanitizedName = TextFileUtil.stripTrailingComment( patternName.replace( DECLARATION_SHARED_PATTERN, "" ))
+                                        .trim().split( " " )[ 0 ];
+
+                const patternEvents = TextFileUtil.getLastLineNumForText( list, sanitizedName, true ) + 1;
 
                 for ( let pi = 0, pl = patternEvents; pl < list.length; ++pi, ++pl ) {
 

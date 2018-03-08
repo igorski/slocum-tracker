@@ -111,7 +111,7 @@ describe( "SongAssemblyService", () =>
 
     it( "should translate the hat pattern properties correctly into the assembly output", () =>
     {
-        let hats = song.hats;
+        const hats = song.hats;
 
         hats.start  = Rand.randomNumber( 0, 255 );
         hats.pitch  = Rand.randomNumber( 0, 31 );
@@ -135,8 +135,8 @@ describe( "SongAssemblyService", () =>
 
     it( "should declare silent patterns only once to save space", () =>
     {
-        let channel1 = song.patterns[ 0 ].channels[ 0 ];
-        let bank     = TIA.table.tunings[ 0 ].BASS;
+        const channel1 = song.patterns[ 0 ].channels[ 0 ];
+        const bank     = TIA.table.tunings[ 0 ].BASS;
         let i, l, def;
 
         // add some random notes for the first quaver of the first channels bar
@@ -153,20 +153,20 @@ describe( "SongAssemblyService", () =>
         }
 
         const asm = TextFileUtil.textToLineArray( SongAssemblyService.assemble( song ));
-        let patternDef = TextFileUtil.getLineNumForText( asm, "Higher volume patterns" ) + 3;
+        const patternDef = TextFileUtil.getLineNumForText( asm, "Higher volume patterns" ) + 3;
 
-        assert.ok( asm[ patternDef ].indexOf( "word .Pattern1, .Pattern2, .Pattern2, .Pattern2" ) > -1,
+        assert.ok( asm[ patternDef ].indexOf( "word .Pattern1T, .Pattern2T, .Pattern2T, .Pattern2T" ) > -1,
             "expected one unique and three re-used patterns for channel 1" );
 
-        assert.ok( asm[ patternDef + 1 ].indexOf( "word .Pattern2, .Pattern2, .Pattern2, .Pattern2" ) > -1,
+        assert.ok( asm[ patternDef + 1 ].indexOf( "word .Pattern2T, .Pattern2T, .Pattern2T, .Pattern2T" ) > -1,
             "expected four re-used patterns for channel 2" );
     });
 
     it( "should write patterns into the appropriate volume arrays", () =>
     {
-        let channel1 = song.patterns[ 0 ].channels[ 0 ];
-        let channel2 = song.patterns[ 0 ].channels[ 1 ];
-        let bank     = TIA.table.tunings[ 0 ].BASS;
+        const channel1 = song.patterns[ 0 ].channels[ 0 ];
+        const channel2 = song.patterns[ 0 ].channels[ 1 ];
+        const bank     = TIA.table.tunings[ 0 ].BASS;
         let i, j, l, def, out;
 
         song.patterns[ 0 ].channel2attenuation = true; // attenuate channel 2
@@ -197,21 +197,21 @@ describe( "SongAssemblyService", () =>
         let asm = TextFileUtil.textToLineArray( SongAssemblyService.assemble( song ));
         let patternDef = TextFileUtil.getLineNumForText( asm, "Higher volume patterns" ) + 3;
 
-        assert.ok( asm[ patternDef ].indexOf( "word .Pattern1, .Pattern2, .Pattern2, .Pattern2 ; 0" ) > -1,
+        assert.ok( asm[ patternDef ].indexOf( "word .Pattern1T, .Pattern2T, .Pattern2T, .Pattern2T ; 0" ) > -1,
             "expected channel 1 pattern to be in the higher volume Array starting at index 0" );
 
         asm = TextFileUtil.textToLineArray( SongAssemblyService.assemble( song ));
         patternDef = TextFileUtil.getLineNumForText( asm, "Lower volume patterns" ) + 3;
 
-        assert.ok( asm[ patternDef ].indexOf( "word .Pattern3, .Pattern2, .Pattern2, .Pattern2 ; 128" ) > -1,
+        assert.ok( asm[ patternDef ].indexOf( "word .Pattern3T, .Pattern2T, .Pattern2T, .Pattern2T ; 128" ) > -1,
             "expected channel 2 pattern to be in the lower volume Array starting at index 128" );
     });
 
     it( "should define duplicate subpatterns only once to save space", () =>
     {
-        let channel1 = song.patterns[ 0 ].channels[ 0 ];
-        let channel2 = song.patterns[ 0 ].channels[ 1 ];
-        let bank     = TIA.table.tunings[ 0 ].BASS;
+        const channel1 = song.patterns[ 0 ].channels[ 0 ];
+        const channel2 = song.patterns[ 0 ].channels[ 1 ];
+        const bank     = TIA.table.tunings[ 0 ].BASS;
         let i, j, l, def;
 
         // add some random notes for the first quaver of the first channels bar
@@ -235,10 +235,10 @@ describe( "SongAssemblyService", () =>
         let asm = TextFileUtil.textToLineArray( SongAssemblyService.assemble( song ));
         let patternDef = TextFileUtil.getLineNumForText( asm, "Higher volume patterns" ) + 3;
 
-        assert.ok( asm[ patternDef ].indexOf( "word .Pattern1, .Pattern2, .Pattern2, .Pattern2" ) > -1,
+        assert.ok( asm[ patternDef ].indexOf( "word .Pattern1T, .Pattern2T, .Pattern2T, .Pattern2T" ) > -1,
             "expected one unique and three re-used patterns for channel 1" );
 
-        assert.ok( asm[ patternDef + 1 ].indexOf( "word .Pattern2, .Pattern1, .Pattern2, .Pattern2" ) > -1,
+        assert.ok( asm[ patternDef + 1 ].indexOf( "word .Pattern2T, .Pattern1T, .Pattern2T, .Pattern2T" ) > -1,
             "expected three re-used silent and one re-used pattern for channel 2" );
 
         // add some random notes for the last quaver of the second channels bar
@@ -256,19 +256,19 @@ describe( "SongAssemblyService", () =>
         asm = TextFileUtil.textToLineArray( SongAssemblyService.assemble( song ));
         patternDef = TextFileUtil.getLineNumForText( asm, "Higher volume patterns" ) + 3;
 
-        assert.ok( asm[ patternDef ].indexOf( "word .Pattern1, .Pattern2, .Pattern2, .Pattern2" ) > -1,
+        assert.ok( asm[ patternDef ].indexOf( "word .Pattern1T, .Pattern2T, .Pattern2T, .Pattern2T" ) > -1,
             "expected one unique and three re-used patterns for channel 1" );
 
-        assert.ok( asm[ patternDef + 1 ].indexOf( "word .Pattern2, .Pattern1, .Pattern2, .Pattern3" ) > -1,
+        assert.ok( asm[ patternDef + 1 ].indexOf( "word .Pattern2T, .Pattern1T, .Pattern2T, .Pattern3T" ) > -1,
             "expected two re-used silent, one re-used pattern and one unique pattern for channel 2" );
     });
 
     it( "should duplicate pattern words only once to save space", () =>
     {
-        let channel1 = song.patterns[ 0 ].channels[ 0 ];
-        let channel2 = song.patterns[ 0 ].channels[ 1 ];
-        let steps    = song.patterns[ 0 ].steps;
-        let bank     = TIA.table.tunings[ 0 ].BASS;
+        const channel1 = song.patterns[ 0 ].channels[ 0 ];
+        const channel2 = song.patterns[ 0 ].channels[ 1 ];
+        const steps    = song.patterns[ 0 ].steps;
+        const bank     = TIA.table.tunings[ 0 ].BASS;
         let i, l, def;
 
         // add some random notes for the first measure of the first channels bar
@@ -292,7 +292,7 @@ describe( "SongAssemblyService", () =>
         const asm        = TextFileUtil.textToLineArray( SongAssemblyService.assemble( song ));
         const patternDef = TextFileUtil.getLineNumForText( asm, "Higher volume patterns" ) + 3;
 
-        assert.ok( asm[ patternDef ].indexOf( "word .Pattern1, .Pattern2, .Pattern3, .Pattern4" ) > -1,
+        assert.ok( asm[ patternDef ].indexOf( "word .Pattern1T, .Pattern2T, .Pattern3T, .Pattern4T" ) > -1,
              "expected pattern declaration to match expectation" );
 
         assert.ok( asm[ patternDef + 1 ].length === 0,
@@ -311,10 +311,10 @@ describe( "SongAssemblyService", () =>
 
     it( "should duplicate pattern words when it doesn't exist for the specified volume pattern", () =>
     {
-        let channel1 = song.patterns[ 0 ].channels[ 0 ];
-        let channel2 = song.patterns[ 0 ].channels[ 1 ];
-        let steps    = song.patterns[ 0 ].steps;
-        let bank     = TIA.table.tunings[ 0 ].BASS;
+        const channel1 = song.patterns[ 0 ].channels[ 0 ];
+        const channel2 = song.patterns[ 0 ].channels[ 1 ];
+        const steps    = song.patterns[ 0 ].steps;
+        const bank     = TIA.table.tunings[ 0 ].BASS;
         let i, j, l, def;
 
         // add some random notes for the first measure of the first channels bar
@@ -342,12 +342,12 @@ describe( "SongAssemblyService", () =>
         const asm      = TextFileUtil.textToLineArray( SongAssemblyService.assemble( song ));
         let patternDef = TextFileUtil.getLineNumForText( asm, "Higher volume patterns" ) + 3;
 
-        assert.ok( asm[ patternDef ].indexOf( "word .Pattern1, .Pattern2, .Pattern3, .Pattern4" ) > -1,
+        assert.ok( asm[ patternDef ].indexOf( "word .Pattern1T, .Pattern2T, .Pattern3T, .Pattern4T" ) > -1,
              "expected pattern declaration to match expectation" );
 
         patternDef = TextFileUtil.getLineNumForText( asm, "Lower volume patterns" ) + 3;
 
-        assert.ok( asm[ patternDef ].indexOf( "word .Pattern1, .Pattern2, .Pattern3, .Pattern4" ) > -1,
+        assert.ok( asm[ patternDef ].indexOf( "word .Pattern1T, .Pattern2T, .Pattern3T, .Pattern4T" ) > -1,
              "expected pattern to have been redeclared as it didn't exist in the lower volume Array yet" );
 
         let songDef = TextFileUtil.getLastLineNumForText( asm, "song1", true ) + 1;
@@ -391,10 +391,10 @@ describe( "SongAssemblyService", () =>
         const asm = TextFileUtil.textToLineArray( SongAssemblyService.assemble( song ));
         let patternDef = TextFileUtil.getLineNumForText( asm, "Higher volume patterns" ) + 3;
 
-        assert.ok( asm[ patternDef ].indexOf( "word .Pattern1, .Pattern2, .Pattern2, .Pattern2" ) > -1,
+        assert.ok( asm[ patternDef ].indexOf( "word .Pattern1T, .Pattern2T, .Pattern2T, .Pattern2T" ) > -1,
             "expected one unique and three re-used patterns for channel 1" );
 
-        assert.ok( asm[ patternDef + 1 ].indexOf( "word .Pattern2, .Pattern3, .Pattern2, .Pattern2" ) > -1,
+        assert.ok( asm[ patternDef + 1 ].indexOf( "word .Pattern2T, .Pattern3T, .Pattern2T, .Pattern2T" ) > -1,
             "expected two re-used silent, one re-used pattern and one unique pattern (different by accents) for channel 2" );
     });
 
