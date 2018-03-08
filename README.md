@@ -94,7 +94,41 @@ Unit tests are run via Mocha, which is installed as a dependency. You can run th
 Unit tests go in the _./test_-folder. The file name for a unit test must be equal to the file it is testing, but contain
 the suffix "_.test_", e.g. _Functions.js_ will have a test file _Functions.test.js_.
 
-NOTE : Node v 4.0 or higher must be installed for running the tests (these depend on jsdom)
+Tools for using Slocum Tracker music in your Atari 2600 project
+---------------------------------------------------------------
+
+If you wish to use multiple Slocum Tracker songs within an Atari 2600 project and you
+want to avoid pattern duplication across tracks, you can use the utility called _optimizer.js_
+in the _./tools/_-folder.
+
+The utility will scan a input folders for _.h_-files which should be
+exported Slocum Tracker songs. It will read all pattern declarations within
+each song and compare them with other songs to detect whether there are
+duplicate patterns defined across songs.
+
+The duplicate patterns are extracted and stored in a separate file, and
+the input song pattern names are transformed to reference the shared file's
+pattern names.
+
+You can run the utility via CLI using Node.js. Example usage:
+
+```
+node optimizer.js i=/path/to/folder_containing_exported_slocum_tracker_files
+```
+
+Where the output will be created in a directory called _./out_ which will
+contain generated file _shared.h_ (describing the patterns that were
+duplicated across all input files), as well as all the transformed input songs.
+
+If you wish to use these files in your project:
+
+ * copy the contents of the _./out_-folder into your project source
+ * include _shared.h_ in your custom Music Kit code
+ * include all individual tracks
+ 
+Presto. This is the approach taken in the UT2600 game. Note that the
+transformed songs can safely be imported again into Slocum Tracker without
+loss of data.
 
 ROADMAP
 -------

@@ -28,7 +28,9 @@
     "chai": "^1.9.2",
     "mocha": "^2.2.5",
     "mock-browser": "^0.91.34",
-    "zjslib": "latest"
+    "zjslib": "latest",
+    "async": "1.5.2",
+    "line-by-line": "^0.1.6"
   },
   "scripts": {
     "test": "grunt handlebars && mocha test"
