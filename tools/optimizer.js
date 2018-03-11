@@ -64,6 +64,7 @@ async.eachSeries( songFiles, ( song, next ) => {
 /**
  * collect all patterns within a single song
  *
+ * @param {string} filename
  * @param {Array<string>} lines all lines in the songs header
  * @return {Object}
  */
@@ -117,7 +118,7 @@ function comparePatterns( songContents ) {
 
                 compareSong.patterns.forEach(( comparePattern ) => {
 
-                    if ( JSON.stringify( comparePattern.contents ) === stringifiedPattern) {
+                    if ( JSON.stringify( comparePattern.contents ) === stringifiedPattern ) {
 
                         // we have a duplicate, check if this was already registered before
 
