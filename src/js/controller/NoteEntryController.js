@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2018 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -77,7 +77,7 @@ const NoteEntryController = module.exports =
             element.querySelector( ".confirm-button" ).addEventListener( "click", handleReady );
         });
 
-        Pubsub.subscribe( Messages.CLOSE_OVERLAYS, function( type, payload )
+        Pubsub.subscribe( Messages.CLOSE_OVERLAYS, ( type, payload ) =>
         {
             if ( payload !== NoteEntryController )
                 handleClose();
@@ -176,12 +176,11 @@ function setSelectOptions()
 
     let soundOptions = [];
 
-    perc.forEach( function( p )
-    {
+    perc.forEach(( p ) => {
         soundOptions.push({ title: p.note, value: p.note });
     });
 
-    Object.keys( values ).forEach( function( key ) {
+    Object.keys( values ).forEach(( key ) => {
         soundOptions.push({ title: key, value: key });
     });
 
@@ -198,7 +197,7 @@ function handleSoundSelect()
     let noteOptions = [], collectedNotes = [], note;
 
     if ( values ) {
-        Object.keys( values ).forEach( function( key )
+        Object.keys( values ).forEach(( key ) =>
         {
             note = values[ key ].note;
             if ( collectedNotes.indexOf( note ) === - 1 ) {

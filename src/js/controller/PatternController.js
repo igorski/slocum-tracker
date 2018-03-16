@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2018 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -38,7 +38,7 @@ const Pubsub         = require( "pubsub-js" );
 let container, slocum, noteEntryController, keyboardController;
 let activePattern = 0, activeChannel = 0, activeStep = 0, stepAmount = 16,
     stepOnSelection = -1, shrinkSelection = false, minOnSelection, maxOnSelection,
-    prevVerticalKey, interactionData = {},
+    prevVerticalKey, interactionData = {}, lastSound,
     stateModel, selectionModel, patternCopy, currentPositionInput, totalPatternsDisplay,
     stepSelection, channel1attenuation, channel2attenuation;
 
@@ -446,11 +446,11 @@ function handleInteraction( aEvent )
 
 function editStep()
 {
-    let pattern = slocum.activeSong.patterns[ activePattern ];
-    let channel = pattern.channels[ activeChannel ];
-    let step    = channel[ activeStep ];
+    const pattern = slocum.activeSong.patterns[ activePattern ];
+    const channel = pattern.channels[ activeChannel ];
+    const step    = channel[ activeStep ];
 
-    let options = ( step ) ?
+    const options = ( step ) ?
     {
         sound : step.sound,
         note  : step.note,
@@ -459,7 +459,12 @@ function editStep()
 
     } : null;
 
-    noteEntryController.open( options, function( data )
+    // speed up proceedings by taking the last added sound as default
+
+    if ( !options.sound && lastSound )
+        options.sound = lastSound;
+
+    noteEntryController.open( options, ( data ) =>
     {
         // restore interest in keyboard controller events
         keyboardController.setListener( PatternController );
@@ -476,6 +481,8 @@ function editStep()
                 valid = true;
             }
             channel[ activeStep ] = ( valid ) ? data : undefined;
+
+            lastSound = data.sound;
 
             PatternController.handleKey( "down", 40 ); // proceed to next line
             PatternController.update();
