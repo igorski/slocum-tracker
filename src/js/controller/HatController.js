@@ -99,7 +99,7 @@ const HatController = module.exports =
         while ( i-- )
         {
             options.push({
-                title: "Measure " + ( i + 1 ),
+                title: `Pattern ${i}`,
                 value: i.toString()
             });
         }
