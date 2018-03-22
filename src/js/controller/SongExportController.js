@@ -150,11 +150,17 @@ function handleClose() {
 function handleConfirm() {
 
     const song  = slocum.activeSong;
+
+    // export requested range (defaults to full song range)
+
     const first = Math.max( 0, Math.min( num( firstPattern ), song.patterns.length - 1 ));
     const last  = Math.min( song.patterns.length - 1, num( lastPattern ));
 
     const clone    = ObjectUtil.clone( song );
     clone.patterns = clone.patterns.splice( first, ( last - first ) + 1 );
+
+    if ( clone.hats.start !== 255 )
+        clone.hats.start -= first;
 
     if ( SongUtil.isValid( clone ))
     {
