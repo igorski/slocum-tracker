@@ -273,7 +273,7 @@ const PatternController = module.exports =
                         else
                             state = stateModel.redo();
 
-                        if ( state !== null ) {
+                        if ( state ) {
                             slocum.activeSong = state;
                             PatternController.update();
                         }
