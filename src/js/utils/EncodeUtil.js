@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2018 - http://www.igorski.nl
+ * Igor Zinken 2018 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,44 +22,32 @@
  */
 "use strict";
 
-const Bowser = require( "bowser" );
+module.exports = {
 
-module.exports =
-{
     /**
-     * return the path that the application is running in, this can
-     * differ dependent on the production environment
+     * Create a Blob of binary data from a given base64 encoded string
      *
      * @public
-     * @return {string}
+     * @param {string} base64string
+     * @param {string=} contentType
+     * @param {number=} sliceSize
+     * @returns {Blob}
      */
-    getBasePath() {
-        if ( typeof window.slocum === "object" && typeof window.slocum.path === "string" ) {
-            return window.slocum.path;
+    Base64toBlob( base64string, contentType = "", sliceSize = 1024 ) {
+
+        const byteCharacters = atob( base64string );
+        const byteArrays = [];
+
+        for ( let offset = 0; offset < byteCharacters.length; offset += sliceSize ) {
+            const slice = byteCharacters.slice( offset, offset + sliceSize );
+
+            const byteNumbers = new Array(slice.length);
+            for ( let i = 0; i < slice.length; i++ ) {
+                byteNumbers[ i ] = slice.charCodeAt( i );
+            }
+            byteArrays.push( new Uint8Array( byteNumbers ));
         }
-        return window.location.origin + window.location.pathname;
-    },
 
-    /**
-     * whether the application is running in local development mode
-     *
-     * @public
-     * @return {boolean}
-     */
-    isDevMode(){
-        // simple check whether we're running through the connect plugin
-        return ( window.location.hostname === "localhost" || window.location.port === "3000" );
-    },
-
-    /**
-     * queries whether hover states (for help topics) are
-     * supported in the current environment
-     *
-     * @return {boolean}
-     */
-    canHover() {
-        // no hover on iOS as it ensures we have weird behaviour where you have
-        // to click links and buttons twice (once for hover/focus, second for click)
-        return !Bowser.ios;
+        return new Blob( byteArrays, { type: contentType });
     }
 };

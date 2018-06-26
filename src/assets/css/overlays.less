@@ -1,5 +1,6 @@
 #advancedPatternEditor,
-#songExportWindow {
+#songExportWindow,
+#javatariWindow {
 
   .EditorComponent;
   .Overlay;
@@ -36,10 +37,16 @@
   }
 }
 
+#songExportWindow fieldset button {
+  width: 100%;
+  display: block;
+}
+
 @media screen and ( max-width: @mobile-width )
 {
   #advancedPatternEditor,
-  #songExportWindow{
+  #songExportWindow,
+  #javatariWindow {
     border-radius: 0;
   }
 }
@@ -50,7 +57,8 @@
 @media screen and ( min-width: @apeWidth )
 {
   #advancedPatternEditor,
-  #songExportWindow{
+  #songExportWindow,
+  #javatariWindow {
     top: 50%;
     left: 50%;
     width: @apeWidth;

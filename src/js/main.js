@@ -33,6 +33,7 @@ const PatternController               = require( "./controller/PatternController
 const AdvancedPatternEditorController = require( "./controller/AdvancedPatternEditorController" );
 const SongController                  = require( "./controller/SongController" );
 const SongExportController            = require( "./controller/SongExportController" );
+const JavatariController              = require( "./controller/JavatariController" );
 const ObjectUtil                      = require( "./utils/ObjectUtil" );
 const TemplateService                 = require( "./services/TemplateService" );
 const Messages                        = require( "./definitions/Messages" );
@@ -42,13 +43,14 @@ const Pubsub                          = require( "pubsub-js" );
 
 (function( ref )
 {
+    let slocum = ref.slocum = ( ref.slocum || {});
+
     // prepare application model
 
-    const slocum = ref.slocum =
-    {
+    slocum = Object.assign( slocum, {
         SongModel       : new SongModel(),
         TemplateService : new TemplateService()
-    };
+    });
 
     // create new empty song or load last available song
 
@@ -77,6 +79,7 @@ const Pubsub                          = require( "pubsub-js" );
         HelpController.init( container.querySelector( "#helpSection" ), slocum );
         HatController.init( container.querySelector( "#hatSection" ), slocum, KeyboardController );
         SongExportController.init( container, slocum, KeyboardController );
+        JavatariController.init( container, slocum );
     });
 
     // subscribe to pubsub system to receive and broadcast messages across the application

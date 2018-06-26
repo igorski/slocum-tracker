@@ -22,16 +22,20 @@
  */
 "use strict";
 
+const Config              = require( "../config/Config" );
 const SongAssemblyService = require( "../services/SongAssemblyService" );
 const Messages            = require( "../definitions/Messages" );
-const SongUtil            = require( "../utils/SongUtil" );
+const EncodeUtil          = require( "../utils/EncodeUtil" );
+const FileUtil            = require( "../utils/FileUtil" );
 const ObjectUtil          = require( "../utils/ObjectUtil" );
+const SongUtil            = require( "../utils/SongUtil" );
 const Form                = require( "../utils/Form" );
 const Pubsub              = require( "pubsub-js" );
+const QAjax               = require( "qajax" );
 
 /* private properties */
 
-let container, element, slocum, keyboardController;
+let container, element, slocum, supportsBinary, keyboardController;
 let firstPattern, lastPattern;
 
 const SongExportController = module.exports =
@@ -49,7 +53,15 @@ const SongExportController = module.exports =
         slocum             = slocumRef;
         keyboardController = keyboardControllerRef;
 
-        slocum.TemplateService.renderAsElement( "songExport" ).then(( template ) => {
+        // if a path to an external compiler API has been defined, support binary exporting
+
+        supportsBinary = ( typeof slocumRef.compilerAPI === "string" );
+
+        slocum.TemplateService.renderAsElement( "songExport", {
+
+            "supportsBinary": supportsBinary
+
+        }).then(( template ) => {
 
             element = template;
 
@@ -60,8 +72,19 @@ const SongExportController = module.exports =
 
             // add listeners
 
-            element.querySelector( ".close-button" ).addEventListener  ( "click", handleClose );
-            element.querySelector( ".confirm-button" ).addEventListener( "click", handleConfirm );
+            element.querySelector( ".close-button" ).addEventListener ( "click", handleClose );
+            element.querySelector( ".export-header" ).addEventListener( "click", () => {
+                validate( exportHeader );
+            });
+
+            if ( supportsBinary ) {
+                element.querySelector( ".export-binary" ).addEventListener( "click", () => {
+                    validate( exportBinary );
+                });
+                element.querySelector( ".preview-binary" ).addEventListener( "click", () => {
+                    validate( previewBinary );
+                });
+            }
         });
 
         // subscribe to messaging system
@@ -86,7 +109,7 @@ const SongExportController = module.exports =
                     break;
 
                 case 13: // enter
-                    handleConfirm();
+                    validate( supportsBinary ? previewBinary : exportHeader );
                     break;
             }
         }
@@ -147,9 +170,26 @@ function handleClose() {
     }
 }
 
-function handleConfirm() {
+/**
+ * retrieve the numerical value from an input element
+ *
+ * @private
+ * @param {Element} inputElement
+ * @return {number}
+ */
+function num( inputElement ) {
+    return parseInt( inputElement.value, 10 );
+}
 
-    const song  = slocum.activeSong;
+/**
+ * Validates the form input and runs a callback function
+ * on validation success
+ *
+ * @param {!Function} processFn will receive string song (as assembly header strinh)
+ */
+function validate( processFn ) {
+
+    const song = slocum.activeSong;
 
     // export requested range (defaults to full song range)
 
@@ -162,35 +202,63 @@ function handleConfirm() {
     if ( clone.hats.start !== 255 )
         clone.hats.start -= first;
 
-    if ( SongUtil.isValid( clone ))
-    {
-        const asm = SongAssemblyService.assemble( clone );
-
-        // download file to disk
-
-        const pom = document.createElement( "a" );
-        pom.setAttribute( "href", "data:text/plain;charset=utf-8," + encodeURIComponent( asm ));
-        pom.setAttribute( "download", "song.h" );
-
-        if ( document.createEvent ) {
-            const event = document.createEvent( "MouseEvents" );
-            event.initEvent( "click", true, true );
-            pom.dispatchEvent( event );
-        }
-        else {
-            pom.click();
-        }
+    if ( SongUtil.isValid( clone )) {
+        processFn( SongAssemblyService.assemble( clone ));
     }
     handleClose();
 }
 
+function exportHeader( asm ) {
+    FileUtil.download(
+        `data:text/plain;charset=utf-8,${encodeURIComponent( asm )}`, `song.h`
+    );
+}
+
+function exportBinary( asm ) {
+    compileASM( asm, ( binaryURL ) => {
+        FileUtil.download( binaryURL, "song.bin" );
+        URL.revokeObjectURL( binaryURL );
+    });
+}
+
+function previewBinary( asm ) {
+    compileASM( asm, ( binaryURL ) => {
+        Pubsub.publish( Messages.OPEN_JAVATARI_CONSOLE, binaryURL );
+    });
+}
+
 /**
- * retrieve the numerical value from an input element
+ * Invoke the assembly microservice to compile given
+ * assembly program into a standalone Atari binary
+ * containing the Music Kit program playing back the song
  *
- * @private
- * @param {Element} inputElement
- * @return {number}
+ * @param {string} asm
+ * @param {!Function} callback receiving Blob URL of assembled Binary
  */
-function num( inputElement ) {
-    return parseInt( inputElement.value, 10 );
+function compileASM( asm, callback )
+{
+    const payload = { asm: asm };
+    const ERROR_MESSAGE = "Error occurred during compilation of binary";
+
+    QAjax({ url: slocum.compilerAPI, method: "POST", data: payload })
+            .then(( success ) => {
+
+                if ( success ) {
+                    try {
+                        const data = JSON.parse( success.responseText );
+                        if ( data && data.result ) {
+                            callback( URL.createObjectURL( EncodeUtil.Base64toBlob(
+                                data.result.file, "application/octet-stream", 1024
+                            )));
+                        }
+                    }
+                    catch ( e ) {
+                        Pubsub.publish( Messages.SHOW_ERROR, ERROR_MESSAGE );
+                    }
+                }
+            },
+            ( error ) => {
+                Pubsub.publish( Messages.SHOW_ERROR, ERROR_MESSAGE );
+            }
+        );
 }

@@ -60,10 +60,10 @@ const SongController = module.exports =
 
             // grab references to elements in the template
 
-            container.querySelector( "#songLoad"   ).addEventListener( "click", handleLoad );
-            container.querySelector( "#songSave"   ).addEventListener( "click", handleSave );
-            container.querySelector( "#songReset"  ).addEventListener( "click", handleReset );
-            container.querySelector( "#songExport" ).addEventListener( "click", handleExport );
+            container.querySelector( "#songLoad"    ).addEventListener( "click", handleLoad );
+            container.querySelector( "#songSave"    ).addEventListener( "click", handleSave );
+            container.querySelector( "#songReset"   ).addEventListener( "click", handleReset );
+            container.querySelector( "#songExport"  ).addEventListener( "click", handleExport );
 
             if ( canImportExport ) {
 
@@ -101,7 +101,8 @@ function handleLoad( aEvent )
 {
     Pubsub.publish( Messages.CLOSE_OVERLAYS, SongController ); // close open overlays
 
-    let songs = slocum.SongModel.getSongs(), li;
+    const songs = slocum.SongModel.getSongs();
+    let li;
     list.innerHTML = "";
 
     if ( songs.length === 0 ) {
@@ -133,7 +134,7 @@ function handleLoad( aEvent )
 
 function handleSave( aEvent )
 {
-    let song = slocum.activeSong;
+    const song = slocum.activeSong;
 
     if ( SongUtil.isValid( song )) {
         slocum.SongModel.saveSong( song );

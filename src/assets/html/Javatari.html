@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Javatari</title>
+    <style type="text/css">
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="javatari-screen">
+        <!-- will contain emulator injected by Javatari script -->
+    </div>
+    <script type="text/javascript">
+        window.addEventListener( "message", function( e ) {
+            if ( e.data && typeof e.data.url === "string" ) {
+                var binaryURL = e.data.url;
+                try {
+                    Javatari.CARTRIDGE_URL = binaryURL;
+                    Javatari.start();
+                }
+                catch( e ) {
+                    Javatari.fileLoader.readFromURL( binaryURL );
+                }
+            }
+        });
+    </script>
+    <script src="../js/javatari.js"></script>
+</body>
+</html>

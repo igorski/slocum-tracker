@@ -12,7 +12,7 @@ module.exports = {
             }
         },
         files: {
-            '<%= config.target.dev %><%= pkg.name %>.js' : [ '<%= config.project.root %>**/*.js' ]
+            '<%= config.target.dev %><%= pkg.name %>.js' : [ '<%= config.project.js %>**/*.js' ]
         }
     },
     prod: {
@@ -28,7 +28,7 @@ module.exports = {
             }
         },
         files: {
-            '<%= config.target.env %><%= pkg.name %>.js' : [ '<%= config.project.root %>**/*.js' ]
+            '<%= config.target.env %><%= pkg.name %>.js' : [ '<%= config.project.js %>**/*.js' ]
         }
     }
 };
