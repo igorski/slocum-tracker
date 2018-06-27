@@ -15,9 +15,17 @@
         <!-- will contain emulator injected by Javatari script -->
     </div>
     <script type="text/javascript">
+
+        var binaryURL;
         window.addEventListener( "message", function( e ) {
+
             if ( e.data && typeof e.data.url === "string" ) {
-                var binaryURL = e.data.url;
+
+                if ( binaryURL === e.data.url )
+                    return;
+
+                binaryURL = e.data.url;
+
                 try {
                     Javatari.CARTRIDGE_URL = binaryURL;
                     Javatari.start();
