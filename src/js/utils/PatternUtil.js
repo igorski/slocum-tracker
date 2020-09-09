@@ -22,6 +22,8 @@
  */
 "use strict";
 
+const PatternFactory = require( "../factory/PatternFactory" );
+
 const PatternUtil = module.exports =
 {
     /**
@@ -88,7 +90,7 @@ const PatternUtil = module.exports =
 
         pattern.channels.forEach(( channelPattern, channelIndex ) => {
 
-            const notes = new Array( 32 );
+            const notes = new Array( 32 ).fill( PatternFactory.generateEmptyPatternStep() );
 
             for ( let i = 0, w = 0; i < channelPattern.length; ++i, w += 2 )
                 notes[ w ] = channelPattern[ i ];
