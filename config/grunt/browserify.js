@@ -4,6 +4,9 @@ module.exports = {
             browserifyOptions: {
                 debug: true,
                 transform: [
+                    ["babelify", {
+                        presets: ["@babel/preset-env"]
+                    }],
                     "workerify"
                 ]
             }
@@ -17,6 +20,9 @@ module.exports = {
             browserifyOptions: {
                 debug: false,
                 transform: [
+                    ["babelify", {
+                        presets: ["@babel/preset-env"]
+                    }],
                     "workerify"
                 ]
             }

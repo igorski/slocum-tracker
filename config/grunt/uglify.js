@@ -19,15 +19,11 @@ module.exports =
              hoist_vars: false,
              if_return: true,
              join_vars: true,
-             cascade: true,
              side_effects: false,
              pure_getters: false,
              pure_funcs: null,
              negate_iife: true,
-             screw_ie8: true,
-             drop_console: true,
-             angular: false,
-             warnings: false
+             drop_console: true
         },
         sourceMap: false,
         sourceMapName: '<%= config.target.env %>maps/app.map'
