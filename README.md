@@ -143,5 +143,6 @@ the optimization code again).
 ROADMAP
 -------
 
-Slocum Trackers core should merge with [Efflux Tracker](https://github.com/igorski/efflux-tracker). This will enable the
-synthesis of actual sound (though it should not attempt to mimic the TIA!!), optimized interface and support for Web MIDI.
+Slocum Trackers core should merge with [Efflux Tracker](https://github.com/igorski/efflux-tracker) (Vue/Webpack based).
+This will enable the synthesis of actual sound (though it should not attempt to mimic the TIA!!), optimized interface and
+support for Web MIDI.
