@@ -36,6 +36,8 @@
     "zjslib": "latest"
   },
   "scripts": {
-    "test": "node node_modules/mocha/bin/mocha test/**/*"
+    "test": "node node_modules/mocha/bin/mocha test/**/*",
+    "dev": "./node_modules/grunt-cli/bin/grunt dev",
+    "build": "./node_modules/grunt-cli/bin/grunt build"
   }
 }

@@ -53,24 +53,24 @@ In *Windows* from the Command Prompt:
 ```
 dasm songmain.asm -f3 -osong.bin
 ```
-    
+
 On *Mac OS X* from Terminal command line:
 
 ```
 ./dasm.Darwin.x86 songmain.asm -f3 -osong.bin
 ```
-    
+
 On *Linux* from Terminal command line:
 
 ```
 ./dasm.Linux.x86 songmain.asm -f3 -osong.bin
 ```
-    
+
 And behold, a file "_song.bin_" containing your awesome track ready for playback has been generated!
 
 You can use an emulator such as the excellent [Stella](http://stella.sourceforge.net/downloads.php) to play your song.
 If you want to run it on an actual Atari 2600, you might want to shop around [AtariAge](https://www.atariage.com/) to find
-out how to get your code on a cartridge! 
+out how to get your code on a cartridge!
 
 Build instructions
 ------------------
@@ -80,22 +80,22 @@ To build slocum-tracker first resolve all dependencies using Node:
 ```
 npm install
 ```
-    
+
 After which a development mode can be started (which conveniently opens your browser and points it to the correct
 location) using the following Grunt command:
 
 ```
-grunt dev
+npm run dev
 ```
-    
+
 A production build (minimizes CSS and JS output size) can be created using the following Grunt command:
 
 ```
-grunt build
+npm run build
 ```
-    
+
 After which the build output is available in the _./dist/prod_-folder.
-    
+
 Unit testing
 ------------
 
@@ -135,7 +135,7 @@ If you wish to use these files in your project:
  * copy the contents of the _./optimized_-folder into your project source
  * include _shared.h_ in your custom Music Kit code
  * include all individual tracks
- 
+
 Presto. This is the approach taken in the UT2600 game. Note that the transformed songs can safely be imported again into
 Slocum Tracker without loss of data (note: upon subsequent resave of an imported optimized song, it is necessary to run
 the optimization code again).
