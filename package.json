@@ -13,7 +13,7 @@
     "babelify": "^10.0.0",
     "bowser": "^2.11.0",
     "chai": "^6.2.2",
-    "grunt": "^1.4.1",
+    "grunt": "^1.6.2",
     "grunt-browser-sync": "^2.2.0",
     "grunt-browserify": "^6.0.0",
     "grunt-cli": "^1.4.3",
